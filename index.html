@@ -64,22 +64,6 @@
       100% { transform: rotate(3deg) translateY(4px); }
     }
 
-    button {
-      margin-top: 20px;
-      font-size: 1.1rem;
-      padding: 10px 20px;
-      border-radius: 6px;
-      border: none;
-      background-color: #4367d8;
-      color: white;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(67, 103, 216, 0.5);
-    }
-
-    button:hover {
-      background-color: #2f4fad;
-    }
-
     #result {
       margin-top: 20px;
       font-size: 1.3rem;
@@ -93,7 +77,6 @@
   <h1>Ordena las Botellas 3D</h1>
   <p>Arrastra una botella sobre otra para intercambiar posiciones.</p>
   <div id="container"></div>
-  <button onclick="checkOrder()">Verificar Orden</button>
   <p id="result"></p>
 
   <script>
@@ -167,7 +150,6 @@
       const draggedIndex = Array.from(container.children).indexOf(dragged);
       const targetIndex = Array.from(container.children).indexOf(target);
 
-      // Swap elements
       if (draggedIndex !== -1 && targetIndex !== -1) {
         const bottles = Array.from(container.children);
         container.insertBefore(dragged, bottles[targetIndex]);
@@ -186,6 +168,7 @@
         dragged.classList.remove("dancing");
         dragged.style.opacity = "1";
         dragged = null;
+        checkOrder(); // ✅ Verifica automáticamente al soltar
       }
     }
 
@@ -198,9 +181,9 @@
       for (let i = 0; i < correctOrder.length; i++) {
         if (currentOrder[i] === correctOrder[i]) correctCount++;
       }
-      result.textContent = `Botellas en posición correcta: ${correctCount} de ${correctOrder.length}`;
+      result.textContent = `Botellas correctas: ${correctCount} de ${correctOrder.length}`;
       if (correctCount === correctOrder.length) {
-        result.textContent += " 🎉 ¡Has ordenado todas las botellas!";
+        result.textContent += " 🎉 ¡Ganaste!";
       }
     }
 
