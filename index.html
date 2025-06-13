@@ -6,11 +6,11 @@
 <title>Ordena las Botellas 3D</title>
 <style>
   body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
     text-align: center;
     padding: 20px;
-    background: #f0f4f8;
-    perspective: 1000px; /* perspectiva 3D */
+    background: #eef3fb;
+    perspective: 1000px;
   }
   #container {
     display: flex;
@@ -24,18 +24,21 @@
     width: 60px;
     height: 120px;
     border-radius: 15px 15px 40px 40px;
-    cursor: grab;
-    border: 3px solid #444;
+    border: 3px solid #333;
     user-select: none;
-    background: linear-gradient(145deg, #b5d0ff, #4367d8);
-    box-shadow:
-      inset 0 8px 15px rgba(255,255,255,0.8),
-      0 8px 15px rgba(0,0,0,0.3);
+    background: linear-gradient(145deg, #c4dcff, #4367d8);
+    box-shadow: inset 0 8px 15px rgba(255,255,255,0.8), 0 8px 15px rgba(0,0,0,0.3);
     transition: transform 0.4s ease;
     transform-style: preserve-3d;
     position: relative;
+    cursor: url('https://cur.cursors-4u.net/people/peo-2/peo181.cur'), grab;
   }
-  /* Para simular el "cuello" de la botella */
+
+  .bottle:active {
+    cursor: grabbing;
+    transform: translateZ(40px) rotateX(10deg) rotateY(15deg);
+  }
+
   .bottle::before {
     content: "";
     position: absolute;
@@ -47,17 +50,17 @@
     background: linear-gradient(145deg, #a0b9f5, #334db2);
     border-radius: 12px 12px 5px 5px;
     box-shadow: inset 0 2px 4px rgba(255,255,255,0.6);
-    z-index: 2;
   }
 
-  /* Cambio al arrastrar */
-  .bottle:active {
-    cursor: grabbing;
-    transform: translateZ(40px) rotateX(10deg) rotateY(15deg);
-    box-shadow:
-      inset 0 5px 10px rgba(255,255,255,0.9),
-      0 15px 25px rgba(0,0,0,0.4);
+  .dancing {
+    animation: dance 0.5s infinite ease-in-out alternate;
   }
+
+  @keyframes dance {
+    0% { transform: rotate(-3deg) translateY(-3px); }
+    100% { transform: rotate(3deg) translateY(3px); }
+  }
+
   button {
     margin-top: 20px;
     font-size: 1.1rem;
@@ -68,11 +71,12 @@
     color: white;
     cursor: pointer;
     box-shadow: 0 4px 8px rgba(67,103,216,0.5);
-    transition: background-color 0.3s ease;
   }
+
   button:hover {
-    background-color: #3350b2;
+    background-color: #2f4fad;
   }
+
   #result {
     margin-top: 20px;
     font-size: 1.3rem;
@@ -90,7 +94,7 @@
 <p id="result"></p>
 
 <script>
-  const COLORS = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad"]; // rojo, azul, verde, naranja, morado
+  const COLORS = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad"];
   let correctOrder = [];
   let currentOrder = [];
 
@@ -104,6 +108,18 @@
       .map(a => a[1]);
   }
 
+  function shadeColor(color, percent) {
+    let f = parseInt(color.slice(1),16),
+        t = 0,
+        R = f >> 16,
+        G = (f >> 8) & 0x00FF,
+        B = f & 0x0000FF;
+    return "#" + (0x1000000 + 
+      (Math.round((t - R) * percent / 100) + R) * 0x10000 + 
+      (Math.round((t - G) * percent / 100) + G) * 0x100 + 
+      (Math.round((t - B) * percent / 100) + B)).toString(16).slice(1);
+  }
+
   function createBottles() {
     correctOrder = [...COLORS];
     currentOrder = shuffle([...COLORS]);
@@ -113,9 +129,7 @@
     currentOrder.forEach(color => {
       const div = document.createElement("div");
       div.classList.add("bottle");
-      div.style.background = `
-        linear-gradient(145deg, ${shadeColor(color, 40)}, ${color})
-      `;
+      div.style.background = `linear-gradient(145deg, ${shadeColor(color, 40)}, ${color})`;
       div.setAttribute("draggable", true);
       div.dataset.color = color;
 
@@ -128,23 +142,11 @@
     });
   }
 
-  // Función para hacer un color más oscuro para el degradado
-  function shadeColor(color, percent) {
-    let f = parseInt(color.slice(1),16),
-      t = 0,
-      R = f >> 16,
-      G = (f >> 8) & 0x00FF,
-      B = f & 0x0000FF;
-    return "#" + (0x1000000 + 
-      (Math.round((t - R) * percent / 100) + R) * 0x10000 + 
-      (Math.round((t - G) * percent / 100) + G) * 0x100 + 
-      (Math.round((t - B) * percent / 100) + B)).toString(16).slice(1);
-  }
-
   let dragged = null;
 
   function dragStart(e) {
     dragged = e.target;
+    dragged.classList.add("dancing"); // 💃 activa baile
     setTimeout(() => {
       dragged.style.opacity = '0.6';
     }, 0);
@@ -157,7 +159,6 @@
   function drop(e) {
     e.preventDefault();
     if (e.target.classList.contains("bottle") && dragged !== e.target) {
-      // Intercambiar posiciones en el DOM con animación
       let draggedIndex = Array.from(container.children).indexOf(dragged);
       let targetIndex = Array.from(container.children).indexOf(e.target);
 
@@ -174,8 +175,11 @@
   }
 
   function dragEnd(e) {
-    dragged.style.opacity = '1';
-    dragged = null;
+    if (dragged) {
+      dragged.style.opacity = '1';
+      dragged.classList.remove("dancing"); // 🛑 para el baile
+      dragged = null;
+    }
   }
 
   function updateCurrentOrder() {
