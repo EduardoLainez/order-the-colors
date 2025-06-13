@@ -5,137 +5,335 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Juego de Botellas Mejorado</title>
   <style>
-    /* …estilos igual que antes… */
-    body { font-family:'Segoe UI',sans-serif; text-align:center; background:#eef3fb; margin:0; padding:0; overflow-x:hidden; user-select:none; }
-    h1 { margin:20px 0; }
-    #game { display:flex; flex-direction:column; align-items:center; gap:10px;}
-    #boxContainer {position:relative;width:380px;height:240px;background:linear-gradient(145deg,#d6b887,#c1a663);border:3px solid #a17a38;border-radius:10px;box-shadow:inset 0 6px 8px #b99957,0 8px 12px rgba(0,0,0,0.2);overflow:visible;}
-    #container {display:flex;justify-content:center;gap:20px;position:absolute;top:30px;left:0;width:100%;transition:transform .8s;}
-    .slide-up{transform:translateY(0);}
-    .slide-down{transform:translateY(180px);}
-    .bottle{width:60px;height:120px;border-radius:15px 15px 40px 40px;border:3px solid #333;position:relative;background:linear-gradient(145deg,#c4dcff,#4367d8);box-shadow:inset 0 8px 15px rgba(255,255,255,.8),0 8px 15px rgba(0,0,0,.3);transition:transform .4s,opacity .4s;cursor:grab;}
-    .bottle::before{content:'';position:absolute;top:-15px;left:50%;transform:translateX(-50%);width:25px;height:20px;background:linear-gradient(145deg,#a0b9f5,#334db2);border-radius:12px 12px 5px 5px;box-shadow:inset 0 2px 4px rgba(255,255,255,.6);}
-    .dancing{animation:dance .5s infinite alternate;}
-    @keyframes dance{0%{transform:rotate(-3deg) translateY(-4px);}100%{transform:rotate(3deg) translateY(4px);}}
-    #result{margin-top:10px;font-size:1.3rem;font-weight:bold;min-height:1.5em;transition:color .5s;}
-    #finalOrder{display:flex;justify-content:center;gap:20px;margin-top:20px;opacity:0;transition:opacity 1s;pointer-events:none;}
-    #resetBtn{margin-top:10px;padding:12px 28px;font-size:1.2rem;color:white;background:linear-gradient(145deg,#2980b9,#1c5980);border:none;border-radius:30px;box-shadow:0 4px 8px rgba(41,128,185,.7);opacity:0;pointer-events:none;transition:opacity .7s;}
-    #resetBtn.show{opacity:1;pointer-events:auto;animation:pulse 1.5s infinite alternate;}
-    @keyframes pulse{0%{transform:scale(1);}100%{transform:scale(1.1);}}
-    canvas{position:fixed;top:0;left:0;z-index:20;pointer-events:none;opacity:1;transition:opacity 2s;}
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background: #eef3fb;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      user-select: none;
+    }
+    h1 {
+      margin: 20px 0;
+    }
+    #game {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    #boxContainer {
+      position: relative;
+      width: 380px;
+      height: 240px;
+      background: linear-gradient(145deg, #d6b887, #c1a663);
+      border: 3px solid #a17a38;
+      border-radius: 10px;
+      box-shadow: inset 0 6px 8px #b99957, 0 8px 12px rgba(0, 0, 0, 0.2);
+      overflow: visible;
+    }
+    #container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      position: absolute;
+      top: 30px;
+      left: 0;
+      width: 100%;
+      transition: transform 0.8s;
+    }
+    .slide-up {
+      transform: translateY(0);
+    }
+    .slide-down {
+      transform: translateY(180px);
+    }
+    .bottle {
+      width: 60px;
+      height: 120px;
+      border-radius: 15px 15px 40px 40px;
+      border: 3px solid #333;
+      position: relative;
+      background: linear-gradient(145deg, #c4dcff, #4367d8);
+      box-shadow: inset 0 8px 15px rgba(255, 255, 255, 0.8), 0 8px 15px rgba(0, 0, 0, 0.3);
+      transition: transform 0.4s, opacity 0.4s;
+      cursor: grab;
+    }
+    .bottle::before {
+      content: '';
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 25px;
+      height: 20px;
+      background: linear-gradient(145deg, #a0b9f5, #334db2);
+      border-radius: 12px 12px 5px 5px;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6);
+    }
+    .dancing {
+      animation: dance 0.5s infinite alternate;
+    }
+    @keyframes dance {
+      0% {
+        transform: rotate(-3deg) translateY(-4px);
+      }
+      100% {
+        transform: rotate(3deg) translateY(4px);
+      }
+    }
+    #result {
+      margin-top: 10px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      min-height: 1.5em;
+      transition: color 0.5s;
+    }
+    #finalOrder {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+      opacity: 0;
+      transition: opacity 1s;
+      pointer-events: none;
+    }
+    #resetBtn {
+      margin-top: 10px;
+      padding: 12px 28px;
+      font-size: 1.2rem;
+      color: white;
+      background: linear-gradient(145deg, #2980b9, #1c5980);
+      border: none;
+      border-radius: 30px;
+      box-shadow: 0 4px 8px rgba(41, 128, 185, 0.7);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.7s;
+    }
+    #resetBtn.show {
+      opacity: 1;
+      pointer-events: auto;
+      animation: pulse 1.5s infinite alternate;
+    }
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      100% {
+        transform: scale(1.1);
+      }
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 20;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 2s;
+    }
+
+    /* Animación de mezcla */
+    @keyframes shuffleAnim {
+      0%   { transform: translateX(0) rotate(0deg); }
+      20%  { transform: translateX(-10px) rotate(-10deg); }
+      40%  { transform: translateX(10px) rotate(10deg); }
+      60%  { transform: translateX(-10px) rotate(-10deg); }
+      80%  { transform: translateX(10px) rotate(10deg); }
+      100% { transform: translateX(0) rotate(0deg); }
+    }
+    .shuffling {
+      animation: shuffleAnim 0.8s ease-in-out;
+      cursor: wait;
+    }
   </style>
 </head>
 <body>
   <h1>Ordena las Botellas 🧪</h1>
   <div id="game">
-    <div id="boxContainer"><div id="container" class="slide-up"></div></div>
+    <div id="boxContainer">
+      <div id="container" class="slide-up"></div>
+    </div>
     <p id="result"></p>
     <div id="finalOrder"></div>
     <button id="resetBtn">Volver a jugar</button>
   </div>
 
-  <!-- Sonido de victoria más alegre -->
-  <audio id="winSound" src="https://www.myinstants.com/media/sounds/victory-fanfare.mp3"></audio>
+  <!-- Sonido de victoria alegre (localizado) -->
+  <audio id="winSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
   <canvas id="confettiCanvas"></canvas>
 
   <script>
-    const COLORS=["#e74c3c","#2980b9","#27ae60","#f39c12","#8e44ad"];
-    let correctOrder=[],currentOrder=[];
-    const container=document.getElementById("container"),
-          finalOrder=document.getElementById("finalOrder"),
-          resultEl=document.getElementById("result"),
-          resetBtn=document.getElementById("resetBtn"),
-          canvas=document.getElementById("confettiCanvas"),
-          ctx=canvas.getContext("2d"),
-          winSound=document.getElementById("winSound");
+    const COLORS = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad"];
+    let correctOrder = [], currentOrder = [];
+    const container = document.getElementById("container"),
+      finalOrder = document.getElementById("finalOrder"),
+      resultEl = document.getElementById("result"),
+      resetBtn = document.getElementById("resetBtn"),
+      canvas = document.getElementById("confettiCanvas"),
+      ctx = canvas.getContext("2d"),
+      winSound = document.getElementById("winSound");
 
-    function shuffle(arr){return arr.sort(()=>Math.random()-.5);}
-
-    function shadeColor(c,p){let f=parseInt(c.slice(1),16),R=f>>16,G=f>>8&255,B=f&255;
-      return"#"+(0x1000000+((Math.round((0-R)*p/100)+R)<<16)+((Math.round((0-G)*p/100)+G)<<8)+(Math.round((0-B)*p/100)+B)).toString(16).slice(1);
+    function shuffle(arr) {
+      return arr.sort(() => Math.random() - 0.5);
     }
 
-    function applyColor(el,color){el.style.background=`linear-gradient(145deg,${shadeColor(color,40)},${color})`;el.dataset.color=color;}
+    function shadeColor(c, p) {
+      let f = parseInt(c.slice(1), 16),
+        R = f >> 16,
+        G = (f >> 8) & 255,
+        B = f & 255;
+      return (
+        "#" +
+        (
+          0x1000000 +
+          ((Math.round((0 - R) * p / 100) + R) << 16) +
+          ((Math.round((0 - G) * p / 100) + G) << 8) +
+          (Math.round((0 - B) * p / 100) + B)
+        )
+          .toString(16)
+          .slice(1)
+      );
+    }
 
-    function createBottles(){
-      correctOrder=[...COLORS];
-      currentOrder=shuffle([...COLORS]);
-      container.innerHTML="";finalOrder.innerHTML="";finalOrder.style.opacity=0;
-      resultEl.textContent="";resultEl.style.color="#334db2";resetBtn.classList.remove("show");
-      container.classList.replace("slide-down","slide-up");
+    function applyColor(el, color) {
+      el.style.background = `linear-gradient(145deg,${shadeColor(color, 40)},${color})`;
+      el.dataset.color = color;
+    }
+
+    function createBottles() {
+      correctOrder = [...COLORS];
+      currentOrder = shuffle([...COLORS]);
+      container.innerHTML = "";
+      finalOrder.innerHTML = "";
+      finalOrder.style.opacity = 0;
+      resultEl.textContent = "";
+      resultEl.style.color = "#334db2";
+      resetBtn.classList.remove("show");
+      container.classList.replace("slide-down", "slide-up");
       // crear visibles
-      currentOrder.forEach(c=>{
-        const d=document.createElement("div");d.className="bottle";applyColor(d,c);d.draggable=true;
-        ["dragstart","dragover","drop","dragend"].forEach(e=>d.addEventListener(e,window[e]));
+      currentOrder.forEach(c => {
+        const d = document.createElement("div");
+        d.className = "bottle";
+        applyColor(d, c);
+        d.draggable = true;
+        ["dragstart", "dragover", "drop", "dragend"].forEach(e => d.addEventListener(e, window[e]));
         container.appendChild(d);
       });
-      // crear respuestas
-      shuffle(correctOrder).forEach(c=>{
-        const d=document.createElement("div");d.className="bottle";applyColor(d,c);
+      // crear respuestas desordenadas
+      shuffle(correctOrder).forEach(c => {
+        const d = document.createElement("div");
+        d.className = "bottle";
+        applyColor(d, c);
         finalOrder.appendChild(d);
       });
     }
 
-    let dragged=null;
-    function dragstart(e){dragged=e.target;dragged.classList.add("dancing");setTimeout(()=>dragged.style.opacity="0.6",0);}
-    function dragover(e){e.preventDefault();}
-    function drop(e){
+    let dragged = null;
+    function dragstart(e) {
+      dragged = e.target;
+      dragged.classList.add("dancing");
+      setTimeout(() => (dragged.style.opacity = "0.6"), 0);
+    }
+    function dragover(e) {
       e.preventDefault();
-      const tgt=e.target.closest(".bottle");
-      if(!tgt||tgt===dragged)return;
-      const c1=dragged.dataset.color,c2=tgt.dataset.color;
-      applyColor(dragged,c2);applyColor(tgt,c1);
+    }
+    function drop(e) {
+      e.preventDefault();
+      const tgt = e.target.closest(".bottle");
+      if (!tgt || tgt === dragged) return;
+      const c1 = dragged.dataset.color,
+        c2 = tgt.dataset.color;
+      applyColor(dragged, c2);
+      applyColor(tgt, c1);
       updateOrder();
     }
-    function dragend(){if(dragged){dragged.classList.remove("dancing");dragged.style.opacity="1";dragged=null;checkOrder();}}
+    function dragend() {
+      if (dragged) {
+        dragged.classList.remove("dancing");
+        dragged.style.opacity = "1";
+        dragged = null;
+        checkOrder();
+      }
+    }
 
-    function updateOrder(){currentOrder=[...container.children].map(d=>d.dataset.color);}
-    function checkOrder(){
-      const corr=currentOrder.filter((c,i)=>c===correctOrder[i]).length;
-      resultEl.textContent=`Botellas correctas: ${corr} de ${correctOrder.length}`;
-      resultEl.style.color=corr===5?"green":(corr>=3?"orange":"red");
-      if(corr===5){
-        resultEl.textContent+=" ✅ ¡Ganaste!";
-        container.classList.replace("slide-up","slide-down");
-        finalOrder.style.opacity=1;
+    function updateOrder() {
+      currentOrder = [...container.children].map(d => d.dataset.color);
+    }
+
+    function checkOrder() {
+      const corr = currentOrder.filter((c, i) => c === correctOrder[i]).length;
+      resultEl.textContent = `Botellas correctas: ${corr} de ${correctOrder.length}`;
+      resultEl.style.color = corr === 5 ? "green" : corr >= 3 ? "orange" : "red";
+      if (corr === 5) {
+        resultEl.textContent += " ✅ ¡Ganaste!";
+        container.classList.replace("slide-up", "slide-down");
+        finalOrder.style.opacity = 1;
         launchConfetti();
         winSound.play();
         resetBtn.classList.add("show");
       }
     }
 
-    function launchConfetti(){
-      canvas.width=innerWidth;canvas.height=innerHeight;
-      const pieces=Array.from({length:100},_=>({
-        x:Math.random()*canvas.width,
-        y:Math.random()*-canvas.height,
-        s:Math.random()*3+2,
-        r:Math.random()*6+4,
-        c:COLORS[Math.floor(Math.random()*COLORS.length)]
+    function launchConfetti() {
+      canvas.style.display = "block";
+      canvas.style.opacity = 1;
+      canvas.width = innerWidth;
+      canvas.height = innerHeight;
+      const pieces = Array.from({ length: 100 }, _ => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * -canvas.height,
+        s: Math.random() * 3 + 2,
+        r: Math.random() * 6 + 4,
+        c: COLORS[Math.floor(Math.random() * COLORS.length)]
       }));
-      const draw=()=>{
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        pieces.forEach(p=>{
-          ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,2*Math.PI);
-          ctx.fillStyle=p.c;ctx.fill();p.y+=p.s;
-          if(p.y>canvas.height)p.y=-20;
+      const draw = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach(p => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, 2 * Math.PI);
+          ctx.fillStyle = p.c;
+          ctx.fill();
+          p.y += p.s;
+          if (p.y > canvas.height) p.y = -20;
         });
         requestAnimationFrame(draw);
       };
       draw();
-      setTimeout(()=>{
-        canvas.style.opacity=0;
-        setTimeout(()=>canvas.style.display="none",2000);
-      },3000);
+      setTimeout(() => {
+        canvas.style.opacity = 0;
+        setTimeout(() => (canvas.style.display = "none"), 2000);
+      }, 3000);
     }
 
-    resetBtn.addEventListener("click",()=>{
+    // Animación de mezcla con promesa para esperar que termine
+    function animateShuffleBottles() {
+      return new Promise((resolve) => {
+        const bottles = [...container.children];
+        bottles.forEach((bottle, i) => {
+          bottle.classList.add("shuffling");
+          // Añadir un pequeño retraso para que parezca más natural
+          setTimeout(() => {
+            bottle.classList.remove("shuffling");
+            if (i === bottles.length - 1) resolve();
+          }, 800);
+        });
+      });
+    }
+
+    resetBtn.addEventListener("click", async () => {
       resetBtn.classList.remove("show");
-      resultEl.textContent="";
-      finalOrder.style.opacity=0;
-      container.classList.replace("slide-down","slide-up");
-      // desordenar ambas filas antes de recrear
-      setTimeout(createBottles,800);
+      resultEl.textContent = "";
+      finalOrder.style.opacity = 0;
+      container.classList.replace("slide-down", "slide-up");
+
+      // Animación mezcla visible
+      await animateShuffleBottles();
+
+      // Reordenar las botellas visibles y las respuestas
+      createBottles();
     });
 
     createBottles();
