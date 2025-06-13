@@ -75,7 +75,7 @@
 </head>
 <body>
   <h1>Ordena las Botellas 3D</h1>
-  <p>Arrastra una botella sobre otra para intercambiar posiciones.</p>
+  <p>Arrastra una botella sobre otra para intercambiar colores.</p>
   <div id="container"></div>
   <p id="result"></p>
 
@@ -115,7 +115,7 @@
       currentOrder.forEach(color => {
         const div = document.createElement("div");
         div.classList.add("bottle");
-        div.style.background = `linear-gradient(145deg, ${shadeColor(color, 40)}, ${color})`;
+        applyColor(div, color);
         div.setAttribute("draggable", true);
         div.dataset.color = color;
 
@@ -126,6 +126,11 @@
 
         container.appendChild(div);
       });
+    }
+
+    function applyColor(el, color) {
+      el.style.background = `linear-gradient(145deg, ${shadeColor(color, 40)}, ${color})`;
+      el.dataset.color = color;
     }
 
     let dragged = null;
@@ -147,18 +152,12 @@
       const target = e.target.closest('.bottle');
       if (!target || target === dragged) return;
 
-      const draggedIndex = Array.from(container.children).indexOf(dragged);
-      const targetIndex = Array.from(container.children).indexOf(target);
+      // Intercambiar los colores
+      const draggedColor = dragged.dataset.color;
+      const targetColor = target.dataset.color;
 
-      if (draggedIndex !== -1 && targetIndex !== -1) {
-        const bottles = Array.from(container.children);
-        container.insertBefore(dragged, bottles[targetIndex]);
-        if (draggedIndex < targetIndex) {
-          container.insertBefore(target, bottles[draggedIndex]);
-        } else {
-          container.insertBefore(target, bottles[draggedIndex + 1]);
-        }
-      }
+      applyColor(dragged, targetColor);
+      applyColor(target, draggedColor);
 
       updateCurrentOrder();
     }
@@ -168,7 +167,7 @@
         dragged.classList.remove("dancing");
         dragged.style.opacity = "1";
         dragged = null;
-        checkOrder(); // ✅ Verifica automáticamente al soltar
+        checkOrder(); // Verificar automáticamente al soltar
       }
     }
 
