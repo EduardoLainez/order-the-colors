@@ -35,7 +35,7 @@
       transition: transform 0.4s ease;
       transform-style: preserve-3d;
       position: relative;
-      cursor: url('https://cur.cursors-4u.net/people/peo-2/peo181.cur'), grab;
+      cursor: grab;
     }
 
     .bottle::before {
@@ -55,7 +55,6 @@
       cursor: grabbing;
     }
 
-    /* 💃 Baile */
     .dancing {
       animation: dance 0.5s infinite ease-in-out alternate;
     }
@@ -150,7 +149,7 @@
 
     function dragStart(e) {
       dragged = e.target;
-      dragged.classList.add("dancing"); // 💃 empieza a bailar
+      dragged.classList.add("dancing");
       setTimeout(() => {
         dragged.style.opacity = "0.6";
       }, 0);
@@ -162,25 +161,29 @@
 
     function drop(e) {
       e.preventDefault();
-      if (e.target.classList.contains("bottle") && dragged !== e.target) {
-        let draggedIndex = Array.from(container.children).indexOf(dragged);
-        let targetIndex = Array.from(container.children).indexOf(e.target);
+      const target = e.target.closest('.bottle');
+      if (!target || target === dragged) return;
 
+      const draggedIndex = Array.from(container.children).indexOf(dragged);
+      const targetIndex = Array.from(container.children).indexOf(target);
+
+      // Swap elements
+      if (draggedIndex !== -1 && targetIndex !== -1) {
+        const bottles = Array.from(container.children);
+        container.insertBefore(dragged, bottles[targetIndex]);
         if (draggedIndex < targetIndex) {
-          container.insertBefore(e.target, dragged);
-          container.insertBefore(dragged, container.children[targetIndex]);
+          container.insertBefore(target, bottles[draggedIndex]);
         } else {
-          container.insertBefore(dragged, e.target);
-          container.insertBefore(e.target, container.children[draggedIndex]);
+          container.insertBefore(target, bottles[draggedIndex + 1]);
         }
-
-        updateCurrentOrder();
       }
+
+      updateCurrentOrder();
     }
 
-    function dragEnd(e) {
+    function dragEnd() {
       if (dragged) {
-        dragged.classList.remove("dancing"); // 🛑 para de bailar
+        dragged.classList.remove("dancing");
         dragged.style.opacity = "1";
         dragged = null;
       }
