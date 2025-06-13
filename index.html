@@ -1,113 +1,149 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Juego de Botellas</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: #f0f0f0;
-      text-align: center;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Juego de Botellas 3D</title>
+<style>
+  body {
+    margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #eaeaea; text-align: center; user-select: none;
+  }
+  h1 {
+    margin-top: 20px; color: #333;
+  }
+  #game {
+    margin-top: 30px;
+    display: flex; flex-direction: column; align-items: center; gap: 20px;
+  }
 
-    h1 {
-      margin-top: 20px;
-    }
+  /* BOTELLAS 3D */
+  .bottle-row {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    perspective: 800px;
+  }
+  .bottle {
+    width: 60px; height: 130px;
+    border-radius: 25% 25% 40% 40% / 70% 70% 40% 40%;
+    cursor: grab;
+    position: relative;
+    box-shadow:
+      inset 0 6px 15px rgba(255 255 255 / 0.7),
+      0 6px 10px rgba(0 0 0 / 0.2);
+    transition: transform 0.3s ease;
+    background: linear-gradient(135deg, #555 0%, #222 100%);
+    transform-style: preserve-3d;
+  }
+  .bottle:before {
+    content: '';
+    position: absolute;
+    top: 10px; left: 50%;
+    transform: translateX(-50%);
+    width: 18px; height: 25px;
+    border-radius: 50% 50% 40% 40% / 100% 100% 40% 40%;
+    background: #ccc;
+    box-shadow:
+      inset 0 2px 6px #eee,
+      0 1px 2px rgba(0,0,0,0.3);
+  }
+  /* Color overlays for bottles */
+  .bottle[data-color="#e74c3c"] { background: linear-gradient(135deg, #f44336 0%, #b71c1c 100%); }
+  .bottle[data-color="#2980b9"] { background: linear-gradient(135deg, #3498db 0%, #1b4f72 100%); }
+  .bottle[data-color="#27ae60"] { background: linear-gradient(135deg, #2ecc71 0%, #1e8449 100%); }
+  .bottle[data-color="#f39c12"] { background: linear-gradient(135deg, #f1c40f 0%, #b7950b 100%); }
+  .bottle[data-color="#8e44ad"] { background: linear-gradient(135deg, #9b59b6 0%, #6c3483 100%); }
 
-    #game {
-      margin-top: 30px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+  .bottle.dragging {
+    cursor: grabbing;
+    animation: bottleDance 0.5s infinite alternate ease-in-out;
+    transform-origin: center bottom;
+    z-index: 10;
+  }
 
-    .bottle-row {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin: 15px 0;
-    }
+  @keyframes bottleDance {
+    0% { transform: rotateZ(-7deg) translateY(-5px); }
+    100% { transform: rotateZ(7deg) translateY(5px); }
+  }
 
-    .bottle {
-      width: 60px;
-      height: 120px;
-      border-radius: 15px 15px 30px 30px;
-      background: steelblue;
-      position: relative;
-      cursor: grab;
-      transition: transform 0.3s;
-    }
+  /* CAJA 3D */
+  .box {
+    position: relative;
+    width: 380px;
+    height: 160px;
+    background: linear-gradient(135deg, #deb887 0%, #c9a66b 100%);
+    border-radius: 12px;
+    box-shadow:
+      inset 0 6px 8px #f3d9a6,
+      0 10px 15px rgba(0,0,0,0.25);
+    perspective: 1200px;
+    overflow: visible;
+  }
+  .box:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 25px;
+    background: linear-gradient(90deg, #f3e2b8 0%, #c9a66b 100%);
+    border-radius: 12px 12px 0 0;
+    top: -25px; left: 0;
+    box-shadow: inset 0 3px 3px rgba(255,255,255,0.7);
+    transform: rotateX(45deg);
+    transform-origin: bottom;
+  }
+  .box-cover {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #d2b48c 0%, #b9964c 100%);
+    border-radius: 12px;
+    box-shadow: inset 0 4px 6px #8c6b32;
+    top: 0;
+    left: 0;
+    z-index: 20;
+    transition: top 1s ease;
+    transform-style: preserve-3d;
+  }
 
-    .bottle::before {
-      content: "";
-      position: absolute;
-      top: -15px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 25px;
-      height: 20px;
-      background: #999;
-      border-radius: 10px 10px 0 0;
-    }
+  /* MENSAJES Y BOTÓN */
+  #winMessage {
+    font-size: 1.5rem;
+    color: #2d7a32;
+    min-height: 2em;
+    margin-top: 5px;
+  }
+  #replayBtn {
+    margin-top: 10px;
+    font-size: 1.1rem;
+    padding: 10px 25px;
+    background: #27ae60;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 8px #1e8449aa;
+    transform-origin: center;
+    animation: popIn 0.5s ease forwards;
+    display: none;
+  }
+  #replayBtn:hover {
+    background: #22903f;
+  }
+  @keyframes popIn {
+    from { transform: scale(0); opacity: 0;}
+    to { transform: scale(1); opacity: 1;}
+  }
 
-    .box {
-      width: 360px;
-      height: 140px;
-      background: #deb887;
-      border: 5px solid #b8860b;
-      border-radius: 10px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .box-cover {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: #d2b48c;
-      transition: top 1s ease;
-      top: 0;
-      z-index: 2;
-    }
-
-    #winMessage {
-      margin-top: 20px;
-      font-size: 1.5em;
-      color: green;
-    }
-
-    #replayBtn {
-      margin-top: 20px;
-      padding: 10px 20px;
-      font-size: 1em;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      animation: pop 0.5s ease;
-    }
-
-    @keyframes pop {
-      from { transform: scale(0); }
-      to { transform: scale(1); }
-    }
-
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      z-index: 999;
-    }
-  </style>
+  /* CONTAINER PARA BOTELLAS CORRECTAS */
+  #answerRow {
+    position: relative;
+    pointer-events: none; /* para no interactuar */
+  }
+</style>
 </head>
 <body>
-  <h1>Juego de Botellas</h1>
+  <h1>Juego de Botellas 3D</h1>
   <div id="game">
     <div class="bottle-row" id="playerRow"></div>
     <div class="box">
@@ -115,130 +151,141 @@
       <div class="bottle-row" id="answerRow"></div>
     </div>
     <div id="winMessage"></div>
-    <button id="replayBtn" style="display:none;">Volver a jugar</button>
+    <button id="replayBtn">Volver a jugar</button>
   </div>
-  <canvas id="confetti"></canvas>
 
-  <script>
-    const COLORS = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad"];
-    const playerRow = document.getElementById("playerRow");
-    const answerRow = document.getElementById("answerRow");
-    const boxCover = document.getElementById("boxCover");
-    const winMessage = document.getElementById("winMessage");
-    const replayBtn = document.getElementById("replayBtn");
+<script>
+  const COLORS = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad"];
+  const playerRow = document.getElementById("playerRow");
+  const answerRow = document.getElementById("answerRow");
+  const boxCover = document.getElementById("boxCover");
+  const winMessage = document.getElementById("winMessage");
+  const replayBtn = document.getElementById("replayBtn");
 
-    let dragged = null;
-    let answer = [];
+  let answer = [];
+  let draggingElem = null;
+  let dragStartIndex = null;
 
-    function shuffle(arr) {
-      return [...arr].sort(() => Math.random() - 0.5);
+  // FUNCIONES
+  function shuffle(arr) {
+    return arr
+      .map(v => ({v, sort: Math.random()}))
+      .sort((a,b) => a.sort - b.sort)
+      .map(({v}) => v);
+  }
+
+  function createBottle(color) {
+    const div = document.createElement("div");
+    div.className = "bottle";
+    div.style.background = "";
+    div.dataset.color = color;
+    div.style.background = getGradientByColor(color);
+    div.setAttribute("draggable", true);
+    return div;
+  }
+
+  function getGradientByColor(color) {
+    switch(color) {
+      case "#e74c3c": return "linear-gradient(135deg, #f44336 0%, #b71c1c 100%)";
+      case "#2980b9": return "linear-gradient(135deg, #3498db 0%, #1b4f72 100%)";
+      case "#27ae60": return "linear-gradient(135deg, #2ecc71 0%, #1e8449 100%)";
+      case "#f39c12": return "linear-gradient(135deg, #f1c40f 0%, #b7950b 100%)";
+      case "#8e44ad": return "linear-gradient(135deg, #9b59b6 0%, #6c3483 100%)";
+      default: return "#666";
     }
+  }
 
-    function createBottle(color) {
-      const div = document.createElement("div");
-      div.className = "bottle";
-      div.style.background = color;
-      div.setAttribute("data-color", color);
-      div.setAttribute("draggable", true);
+  // Inicializa el juego
+  function initGame() {
+    answerRow.innerHTML = "";
+    playerRow.innerHTML = "";
+    winMessage.textContent = "";
+    replayBtn.style.display = "none";
+    boxCover.style.top = "0";
 
-      div.addEventListener("dragstart", e => {
-        dragged = div;
-      });
+    answer = shuffle(COLORS);
+    const shuffledPlayer = shuffle(answer);
 
-      div.addEventListener("dragover", e => {
-        e.preventDefault();
-      });
-
-      div.addEventListener("drop", e => {
-        e.preventDefault();
-        if (dragged !== div) {
-          const temp = div.style.background;
-          const tempColor = div.dataset.color;
-
-          div.style.background = dragged.style.background;
-          div.dataset.color = dragged.dataset.color;
-
-          dragged.style.background = temp;
-          dragged.dataset.color = tempColor;
-
-          checkWin();
-        }
-      });
-
-      return div;
-    }
-
-    function initGame() {
-      playerRow.innerHTML = "";
-      answerRow.innerHTML = "";
-      boxCover.style.top = "0";
-      winMessage.textContent = "";
-      replayBtn.style.display = "none";
-
-      answer = shuffle(COLORS);
-      const playerColors = shuffle(answer);
-
-      answer.forEach(color => {
-        const b = createBottle(color);
-        b.setAttribute("draggable", false);
-        answerRow.appendChild(b);
-      });
-
-      playerColors.forEach(color => {
-        playerRow.appendChild(createBottle(color));
-      });
-    }
-
-    function checkWin() {
-      const playerColors = Array.from(playerRow.children).map(b => b.dataset.color);
-      if (playerColors.join() === answer.join()) {
-        winMessage.textContent = "¡Correcto! 🎉";
-        boxCover.style.top = "100%";
-        launchConfetti();
-        replayBtn.style.display = "inline-block";
-      }
-    }
-
-    replayBtn.addEventListener("click", () => {
-      const children = Array.from(playerRow.children);
-      const shuffled = shuffle(children);
-      playerRow.innerHTML = "";
-      shuffled.forEach(b => playerRow.appendChild(b));
-      boxCover.style.top = "0";
-      winMessage.textContent = "";
-      replayBtn.style.display = "none";
+    // Bottles correct (ocultas)
+    answer.forEach(color => {
+      const b = createBottle(color);
+      b.setAttribute("draggable", false);
+      answerRow.appendChild(b);
     });
 
-    function launchConfetti() {
-      const canvas = document.getElementById("confetti");
-      const ctx = canvas.getContext("2d");
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+    // Bottles jugador
+    shuffledPlayer.forEach(color => {
+      const b = createBottle(color);
+      addDragHandlers(b);
+      playerRow.appendChild(b);
+    });
+  }
 
-      const confetti = Array.from({ length: 100 }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * -canvas.height,
-        r: Math.random() * 6 + 4,
-        c: COLORS[Math.floor(Math.random() * COLORS.length)],
-        s: Math.random() * 3 + 2
-      }));
+  function addDragHandlers(elem) {
+    elem.addEventListener("dragstart", dragStart);
+    elem.addEventListener("dragend", dragEnd);
+    elem.addEventListener("dragover", dragOver);
+    elem.addEventListener("drop", drop);
+  }
 
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        for (let p of confetti) {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, 2 * Math.PI);
-          ctx.fillStyle = p.c;
-          ctx.fill();
-          p.y += p.s;
-          if (p.y > canvas.height) p.y = -10;
-        }
-        requestAnimationFrame(draw);
-      }
-      draw();
+  // DRAG & DROP
+  function dragStart(e) {
+    draggingElem = this;
+    dragStartIndex = [...playerRow.children].indexOf(this);
+    this.classList.add("dragging");
+    setTimeout(() => this.style.visibility = "hidden", 0);
+  }
+  function dragEnd(e) {
+    this.classList.remove("dragging");
+    this.style.visibility = "visible";
+    draggingElem = null;
+    dragStartIndex = null;
+  }
+  function dragOver(e) {
+    e.preventDefault();
+  }
+  function drop(e) {
+    e.preventDefault();
+    if (this === draggingElem) return;
+    const dragEndIndex = [...playerRow.children].indexOf(this);
+    swapItems(dragStartIndex, dragEndIndex);
+    checkWin();
+  }
+
+  // Cambia la posición de dos botellas
+  function swapItems(fromIdx, toIdx) {
+    const children = [...playerRow.children];
+    if (fromIdx === toIdx) return;
+    playerRow.insertBefore(children[fromIdx], children[toIdx]);
+    if (toIdx > fromIdx) {
+      playerRow.insertBefore(children[toIdx], children[fromIdx]);
+    } else {
+      playerRow.insertBefore(children[toIdx], children[fromIdx].nextSibling);
     }
+  }
 
-    initGame();
-  </script>
+  // Verifica si el jugador ganó
+  function checkWin() {
+    const playerColors = [...playerRow.children].map(b => b.dataset.color);
+    if (playerColors.join() === answer.join()) {
+      winMessage.textContent = "¡Correcto! 🎉";
+      boxCover.style.top = "100%";
+      replayBtn.style.display = "inline-block";
+    }
+  }
+
+  replayBtn.onclick = () => {
+    // Mezcla botellas para volver a jugar
+    let items = [...playerRow.children];
+    items = shuffle(items);
+    playerRow.innerHTML = "";
+    items.forEach(b => playerRow.appendChild(b));
+    boxCover.style.top = "0";
+    winMessage.textContent = "";
+    replayBtn.style.display = "none";
+  };
+
+  initGame();
+</script>
 </body>
 </html>
