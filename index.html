@@ -1,26 +1,131 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Order the Colors</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ordena las Botellas - Intercambio</title>
+<style>
+  body {
+    font-family: sans-serif;
+    text-align: center;
+    padding: 20px;
+  }
+  #container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px auto;
+    max-width: 350px;
+  }
+  .bottle {
+    width: 50px;
+    height: 100px;
+    border-radius: 10px;
+    cursor: grab;
+    border: 3px solid #444;
+    user-select: none;
+  }
+  button {
+    margin-top: 20px;
+    font-size: 1rem;
+    padding: 8px 16px;
+  }
+  #result {
+    margin-top: 20px;
+    font-size: 1.2rem;
+  }
+</style>
 </head>
 <body>
-  <h1>🎨 Order the Colors</h1>
+<h1>Ordena las Botellas - Intercambio</h1>
+<p>Arrastra una botella sobre otra para intercambiar posiciones.</p>
+<div id="container"></div>
+<button onclick="checkOrder()">Verificar Orden</button>
+<p id="result"></p>
 
-  <p id="level">Nivel: 1</p>
-  <p id="attempts">Intentos: 0</p>
+<script>
+  const COLORS = ["red", "blue", "green", "yellow", "orange"];
+  let correctOrder = [];
+  let currentOrder = [];
 
-  <div id="bottle-container" class="dropzone"></div>
-  <button onclick="checkGuess()">Verificar</button>
-  <button onclick="nextLevel()" style="display:none;" id="next-btn">Siguiente nivel</button>
+  const container = document.getElementById("container");
+  const result = document.getElementById("result");
 
-  <p id="result"></p>
+  function shuffle(array) {
+    return array.sort(() => Math.random() - 0.5);
+  }
 
-  <h2>Botellas disponibles</h2>
-  <div id="options-container" class="dropzone"></div>
+  function createBottles() {
+    // Generar orden correcto (copiar COLORS)
+    correctOrder = [...COLORS];
 
-  <script src="script.js"></script>
+    // Crear orden inicial mezclado
+    currentOrder = shuffle([...COLORS]);
+
+    container.innerHTML = "";
+
+    currentOrder.forEach(color => {
+      const div = document.createElement("div");
+      div.classList.add("bottle");
+      div.style.backgroundColor = color;
+      div.setAttribute("draggable", true);
+      div.dataset.color = color;
+
+      // Eventos drag
+      div.addEventListener("dragstart", dragStart);
+      div.addEventListener("dragover", dragOver);
+      div.addEventListener("drop", drop);
+
+      container.appendChild(div);
+    });
+  }
+
+  let dragged = null;
+
+  function dragStart(e) {
+    dragged = e.target;
+  }
+
+  function dragOver(e) {
+    e.preventDefault(); // necesario para permitir drop
+  }
+
+  function drop(e) {
+    e.preventDefault();
+    if (e.target.classList.contains("bottle") && dragged !== e.target) {
+      // Intercambiar posiciones en el DOM
+      let draggedIndex = Array.from(container.children).indexOf(dragged);
+      let targetIndex = Array.from(container.children).indexOf(e.target);
+
+      if (draggedIndex < targetIndex) {
+        container.insertBefore(e.target, dragged);
+        container.insertBefore(dragged, container.children[targetIndex]);
+      } else {
+        container.insertBefore(dragged, e.target);
+        container.insertBefore(e.target, container.children[draggedIndex]);
+      }
+
+      // Actualizar currentOrder acorde al nuevo orden DOM
+      updateCurrentOrder();
+    }
+  }
+
+  function updateCurrentOrder() {
+    currentOrder = Array.from(container.children).map(div => div.dataset.color);
+  }
+
+  function checkOrder() {
+    let correctCount = 0;
+    for (let i = 0; i < correctOrder.length; i++) {
+      if (currentOrder[i] === correctOrder[i]) correctCount++;
+    }
+    result.textContent = `Botellas en posición correcta: ${correctCount} de ${correctOrder.length}`;
+    if (correctCount === correctOrder.length) {
+      result.textContent += " 🎉 ¡Has ordenado todas las botellas!";
+    }
+  }
+
+  createBottles();
+</script>
 </body>
 </html>
