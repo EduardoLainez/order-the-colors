@@ -1,203 +1,207 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ordena las Botellas 3D</title>
-<style>
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    text-align: center;
-    padding: 20px;
-    background: #eef3fb;
-    perspective: 1000px;
-  }
-  #container {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin: 30px auto;
-    max-width: 400px;
-    transform-style: preserve-3d;
-  }
-  .bottle {
-    width: 60px;
-    height: 120px;
-    border-radius: 15px 15px 40px 40px;
-    border: 3px solid #333;
-    user-select: none;
-    background: linear-gradient(145deg, #c4dcff, #4367d8);
-    box-shadow: inset 0 8px 15px rgba(255,255,255,0.8), 0 8px 15px rgba(0,0,0,0.3);
-    transition: transform 0.4s ease;
-    transform-style: preserve-3d;
-    position: relative;
-    cursor: url('https://cur.cursors-4u.net/people/peo-2/peo181.cur'), grab;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ordena las Botellas 3D</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: #eef3fb;
+      perspective: 1000px;
+    }
 
-  .bottle:active {
-    cursor: grabbing;
-    transform: translateZ(40px) rotateX(10deg) rotateY(15deg);
-  }
+    #container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 30px auto;
+      max-width: 400px;
+      transform-style: preserve-3d;
+    }
 
-  .bottle::before {
-    content: "";
-    position: absolute;
-    top: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 25px;
-    height: 20px;
-    background: linear-gradient(145deg, #a0b9f5, #334db2);
-    border-radius: 12px 12px 5px 5px;
-    box-shadow: inset 0 2px 4px rgba(255,255,255,0.6);
-  }
+    .bottle {
+      width: 60px;
+      height: 120px;
+      border-radius: 15px 15px 40px 40px;
+      border: 3px solid #333;
+      user-select: none;
+      background: linear-gradient(145deg, #c4dcff, #4367d8);
+      box-shadow:
+        inset 0 8px 15px rgba(255, 255, 255, 0.8),
+        0 8px 15px rgba(0, 0, 0, 0.3);
+      transition: transform 0.4s ease;
+      transform-style: preserve-3d;
+      position: relative;
+      cursor: url('https://cur.cursors-4u.net/people/peo-2/peo181.cur'), grab;
+    }
 
-  .dancing {
-    animation: dance 0.5s infinite ease-in-out alternate;
-  }
+    .bottle::before {
+      content: "";
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 25px;
+      height: 20px;
+      background: linear-gradient(145deg, #a0b9f5, #334db2);
+      border-radius: 12px 12px 5px 5px;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6);
+    }
 
-  @keyframes dance {
-    0% { transform: rotate(-3deg) translateY(-3px); }
-    100% { transform: rotate(3deg) translateY(3px); }
-  }
+    .bottle:active {
+      cursor: grabbing;
+    }
 
-  button {
-    margin-top: 20px;
-    font-size: 1.1rem;
-    padding: 10px 20px;
-    border-radius: 6px;
-    border: none;
-    background-color: #4367d8;
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(67,103,216,0.5);
-  }
+    /* 💃 Baile */
+    .dancing {
+      animation: dance 0.5s infinite ease-in-out alternate;
+    }
 
-  button:hover {
-    background-color: #2f4fad;
-  }
+    @keyframes dance {
+      0% { transform: rotate(-3deg) translateY(-4px); }
+      100% { transform: rotate(3deg) translateY(4px); }
+    }
 
-  #result {
-    margin-top: 20px;
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: #334db2;
-    min-height: 30px;
-  }
-</style>
+    button {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      padding: 10px 20px;
+      border-radius: 6px;
+      border: none;
+      background-color: #4367d8;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(67, 103, 216, 0.5);
+    }
+
+    button:hover {
+      background-color: #2f4fad;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #334db2;
+      min-height: 30px;
+    }
+  </style>
 </head>
 <body>
-<h1>Ordena las Botellas 3D</h1>
-<p>Arrastra una botella sobre otra para intercambiar posiciones.</p>
-<div id="container"></div>
-<button onclick="checkOrder()">Verificar Orden</button>
-<p id="result"></p>
+  <h1>Ordena las Botellas 3D</h1>
+  <p>Arrastra una botella sobre otra para intercambiar posiciones.</p>
+  <div id="container"></div>
+  <button onclick="checkOrder()">Verificar Orden</button>
+  <p id="result"></p>
 
-<script>
-  const COLORS = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad"];
-  let correctOrder = [];
-  let currentOrder = [];
+  <script>
+    const COLORS = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad"];
+    let correctOrder = [];
+    let currentOrder = [];
 
-  const container = document.getElementById("container");
-  const result = document.getElementById("result");
+    const container = document.getElementById("container");
+    const result = document.getElementById("result");
 
-  function shuffle(array) {
-    return array
-      .map(a => [Math.random(), a])
-      .sort((a, b) => a[0] - b[0])
-      .map(a => a[1]);
-  }
+    function shuffle(array) {
+      return array
+        .map(a => [Math.random(), a])
+        .sort((a, b) => a[0] - b[0])
+        .map(a => a[1]);
+    }
 
-  function shadeColor(color, percent) {
-    let f = parseInt(color.slice(1),16),
-        t = 0,
-        R = f >> 16,
-        G = (f >> 8) & 0x00FF,
-        B = f & 0x0000FF;
-    return "#" + (0x1000000 + 
-      (Math.round((t - R) * percent / 100) + R) * 0x10000 + 
-      (Math.round((t - G) * percent / 100) + G) * 0x100 + 
-      (Math.round((t - B) * percent / 100) + B)).toString(16).slice(1);
-  }
+    function shadeColor(color, percent) {
+      let f = parseInt(color.slice(1), 16),
+          t = 0,
+          R = f >> 16,
+          G = (f >> 8) & 0x00FF,
+          B = f & 0x0000FF;
+      return "#" + (0x1000000 +
+        (Math.round((t - R) * percent / 100) + R) * 0x10000 +
+        (Math.round((t - G) * percent / 100) + G) * 0x100 +
+        (Math.round((t - B) * percent / 100) + B)).toString(16).slice(1);
+    }
 
-  function createBottles() {
-    correctOrder = [...COLORS];
-    currentOrder = shuffle([...COLORS]);
+    function createBottles() {
+      correctOrder = [...COLORS];
+      currentOrder = shuffle([...COLORS]);
 
-    container.innerHTML = "";
+      container.innerHTML = "";
 
-    currentOrder.forEach(color => {
-      const div = document.createElement("div");
-      div.classList.add("bottle");
-      div.style.background = `linear-gradient(145deg, ${shadeColor(color, 40)}, ${color})`;
-      div.setAttribute("draggable", true);
-      div.dataset.color = color;
+      currentOrder.forEach(color => {
+        const div = document.createElement("div");
+        div.classList.add("bottle");
+        div.style.background = `linear-gradient(145deg, ${shadeColor(color, 40)}, ${color})`;
+        div.setAttribute("draggable", true);
+        div.dataset.color = color;
 
-      div.addEventListener("dragstart", dragStart);
-      div.addEventListener("dragover", dragOver);
-      div.addEventListener("drop", drop);
-      div.addEventListener("dragend", dragEnd);
+        div.addEventListener("dragstart", dragStart);
+        div.addEventListener("dragover", dragOver);
+        div.addEventListener("drop", drop);
+        div.addEventListener("dragend", dragEnd);
 
-      container.appendChild(div);
-    });
-  }
+        container.appendChild(div);
+      });
+    }
 
-  let dragged = null;
+    let dragged = null;
 
-  function dragStart(e) {
-    dragged = e.target;
-    dragged.classList.add("dancing"); // 💃 activa baile
-    setTimeout(() => {
-      dragged.style.opacity = '0.6';
-    }, 0);
-  }
+    function dragStart(e) {
+      dragged = e.target;
+      dragged.classList.add("dancing"); // 💃 empieza a bailar
+      setTimeout(() => {
+        dragged.style.opacity = "0.6";
+      }, 0);
+    }
 
-  function dragOver(e) {
-    e.preventDefault();
-  }
+    function dragOver(e) {
+      e.preventDefault();
+    }
 
-  function drop(e) {
-    e.preventDefault();
-    if (e.target.classList.contains("bottle") && dragged !== e.target) {
-      let draggedIndex = Array.from(container.children).indexOf(dragged);
-      let targetIndex = Array.from(container.children).indexOf(e.target);
+    function drop(e) {
+      e.preventDefault();
+      if (e.target.classList.contains("bottle") && dragged !== e.target) {
+        let draggedIndex = Array.from(container.children).indexOf(dragged);
+        let targetIndex = Array.from(container.children).indexOf(e.target);
 
-      if (draggedIndex < targetIndex) {
-        container.insertBefore(e.target, dragged);
-        container.insertBefore(dragged, container.children[targetIndex]);
-      } else {
-        container.insertBefore(dragged, e.target);
-        container.insertBefore(e.target, container.children[draggedIndex]);
+        if (draggedIndex < targetIndex) {
+          container.insertBefore(e.target, dragged);
+          container.insertBefore(dragged, container.children[targetIndex]);
+        } else {
+          container.insertBefore(dragged, e.target);
+          container.insertBefore(e.target, container.children[draggedIndex]);
+        }
+
+        updateCurrentOrder();
       }
-
-      updateCurrentOrder();
     }
-  }
 
-  function dragEnd(e) {
-    if (dragged) {
-      dragged.style.opacity = '1';
-      dragged.classList.remove("dancing"); // 🛑 para el baile
-      dragged = null;
+    function dragEnd(e) {
+      if (dragged) {
+        dragged.classList.remove("dancing"); // 🛑 para de bailar
+        dragged.style.opacity = "1";
+        dragged = null;
+      }
     }
-  }
 
-  function updateCurrentOrder() {
-    currentOrder = Array.from(container.children).map(div => div.dataset.color);
-  }
-
-  function checkOrder() {
-    let correctCount = 0;
-    for (let i = 0; i < correctOrder.length; i++) {
-      if (currentOrder[i] === correctOrder[i]) correctCount++;
+    function updateCurrentOrder() {
+      currentOrder = Array.from(container.children).map(div => div.dataset.color);
     }
-    result.textContent = `Botellas en posición correcta: ${correctCount} de ${correctOrder.length}`;
-    if (correctCount === correctOrder.length) {
-      result.textContent += " 🎉 ¡Has ordenado todas las botellas!";
-    }
-  }
 
-  createBottles();
-</script>
+    function checkOrder() {
+      let correctCount = 0;
+      for (let i = 0; i < correctOrder.length; i++) {
+        if (currentOrder[i] === correctOrder[i]) correctCount++;
+      }
+      result.textContent = `Botellas en posición correcta: ${correctCount} de ${correctOrder.length}`;
+      if (correctCount === correctOrder.length) {
+        result.textContent += " 🎉 ¡Has ordenado todas las botellas!";
+      }
+    }
+
+    createBottles();
+  </script>
 </body>
 </html>
