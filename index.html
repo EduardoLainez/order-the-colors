@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order the Colors</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>🎨 Order the Colors</h1>
+
+  <p id="level">Nivel: 1</p>
+  <p id="attempts">Intentos: 0</p>
+
+  <div id="bottle-container" class="dropzone"></div>
+  <button onclick="checkGuess()">Verificar</button>
+  <button onclick="nextLevel()" style="display:none;" id="next-btn">Siguiente nivel</button>
+
+  <p id="result"></p>
+
+  <h2>Botellas disponibles</h2>
+  <div id="options-container" class="dropzone"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
