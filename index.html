@@ -1,180 +1,324 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Juego de Botellas Avanzado</title>
-<style>
-body{font-family:'Segoe UI',sans-serif;text-align:center;background:#eef3fb;margin:0;padding:20px;user-select:none;}
-h1{margin-bottom:10px;}
-#menu{display:flex;gap:10px;align-items:center;justify-content:center;margin-bottom:15px;}
-select{padding:6px 10px;font-size:1rem;border-radius:5px;border:1px solid #888;}
-#info{display:flex;gap:20px;justify-content:center;margin:10px;}
-#moveCount, #timer{font-size:1.1rem;font-weight:600;color:#334db2;}
-#game{position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;}
-#boxContainer{position:relative;width:380px;height:240px;background:linear-gradient(145deg,#d6b887,#c1a663);border:3px solid #a17a38;border-radius:10px;box-shadow:inset 0 6px 8px #b99957,0 8px 12px rgba(0,0,0,0.2);overflow:visible;transition:opacity .8s;}
-#container{display:flex;justify-content:center;gap:20px;position:absolute;top:-140px;left:0;width:100%;transition:transform .8s;}
-.bottle{width:60px;height:120px;border-radius:15px 15px 40px 40px;border:3px solid #333;background:linear-gradient(145deg,#c4dcff,#4367d8);box-shadow:inset 0 8px 15px rgba(255,255,255,.8),0 8px 15px rgba(0,0,0,.3);transition:transform .4s,opacity .4s;cursor:grab;user-select:none;}
-.bottle::before{content:'';position:absolute;top:-15px;left:50%;transform:translateX(-50%);width:25px;height:20px;background:linear-gradient(145deg,#a0b9f5,#334db2);border-radius:12px 12px 5px 5px;box-shadow:inset 0 2px 4px rgba(255,255,255,.6);}
-.dancing{animation:dance .5s infinite alternate;}@keyframes dance{0%{transform:rotate(-3deg) translateY(-4px);}100%{transform:rotate(3deg) translateY(4px);}}
-#finalOrder{position:absolute;top:50px;left:50%;transform:translateX(-50%);display:flex;gap:20px;pointer-events:none;opacity:0;transition:opacity .8s;}
-#result{margin-top:10px;font-size:1.3rem;font-weight:bold;min-height:1.5em;transition:color .5s;}
-#resetBtn{margin-top:10px;padding:12px 28px;font-size:1.2rem;color:white;background:linear-gradient(145deg,#2980b9,#1c5980);border:none;border-radius:30px;box-shadow:0 4px 8px rgba(41,128,185,.7);opacity:0;pointer-events:none;transition:opacity .7s;}#resetBtn.show{opacity:1;pointer-events:auto;animation:pulse 1.5s infinite alternate;}@keyframes pulse{0%{transform:scale(1);}100%{transform:scale(1.1);}}
-canvas{position:fixed;top:0;left:0;z-index:20;pointer-events:none;opacity:1;transition:opacity 2s;}
-@keyframes shuffleAnim{0%{transform:translateX(0) rotate(0deg);}20%{transform:translateX(-10px) rotate(-10deg);}40%{transform:translateX(10px) rotate(10deg);}60%{transform:translateX(-10px) rotate(-10deg);}80%{transform:translateX(10px) rotate(10deg);}100%{transform:translateX(0) rotate(0deg);}}
-.shuffling{animation:shuffleAnim .8s ease-in-out;cursor:wait;}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ordena las Botellas</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background: #eef3fb;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      margin: 20px 0 10px;
+    }
+
+    #controls {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      z-index: 5;
+    }
+
+    #game {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 60px; /* SUBE o BAJA esto para mover todo el juego */
+    }
+
+    #boxContainer {
+      width: 380px;
+      height: 200px;
+      background: linear-gradient(145deg, #d6b887, #c1a663);
+      border-radius: 10px;
+      border: 3px solid #a17a38;
+      box-shadow: inset 0 6px 8px #b99957, 0 8px 12px rgba(0,0,0,0.2);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: opacity 0.7s ease;
+      margin-top: 20px;
+    }
+
+    #container {
+      display: flex;
+      gap: 20px;
+      position: relative;
+      z-index: 3;
+    }
+
+    #finalOrder {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1s ease;
+    }
+
+    .bottle {
+      width: 60px;
+      height: 120px;
+      border-radius: 15px 15px 40px 40px;
+      border: 3px solid #333;
+      background: linear-gradient(145deg, #c4dcff, #4367d8);
+      box-shadow: inset 0 8px 15px rgba(255, 255, 255, 0.8),
+                  0 8px 15px rgba(0, 0, 0, 0.3);
+      position: relative;
+      cursor: grab;
+      transition: transform 0.3s;
+    }
+
+    .bottle::before {
+      content: "";
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 25px;
+      height: 20px;
+      background: linear-gradient(145deg, #a0b9f5, #334db2);
+      border-radius: 12px 12px 5px 5px;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6);
+    }
+
+    .dragging {
+      opacity: 0.7;
+      transform: scale(1.05);
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #334db2;
+    }
+
+    #resetBtn {
+      margin-top: 20px;
+      padding: 10px 25px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 20px;
+      background: linear-gradient(145deg, #2980b9, #1c5980);
+      color: white;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    #resetBtn.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #confettiCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 10;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
-<h1>Ordena las Botellas 🧪</h1>
-<div id="menu">
-  <label>Nivel:<select id="levelSel"><option value="3">Fácil (3)</option><option value="5" selected>Medio (5)</option><option value="7">Difícil (7)</option></select></label>
-  <label>Modo:<select id="modeSel"><option value="free">Libre</option><option value="timer">Contrarreloj</option></select></label>
-</div>
-<div id="info">
-  <div id="moveCount">Movimientos: 0</div>
-  <div id="timer"></div>
-</div>
+  <h1>Ordena las Botellas 🧪</h1>
+  <div id="controls">
+    <label for="levelSelect">Nivel:</label>
+    <select id="levelSelect">
+      <option value="5">Fácil</option>
+      <option value="7">Medio</option>
+      <option value="10">Difícil</option>
+    </select>
+  </div>
 
-<div id="game">
-  <div id="boxContainer"><div id="container"></div><div id="finalOrder"></div></div>
-  <p id="result"></p>
-  <button id="resetBtn">Volver a jugar</button>
-</div>
+  <div id="game">
+    <div id="boxContainer">
+      <div id="container"></div>
+    </div>
+    <div id="finalOrder"></div>
+    <div id="result"></div>
+    <button id="resetBtn">Volver a jugar</button>
+    <canvas id="confettiCanvas"></canvas>
+  </div>
 
-<audio id="moveSound" src="https://actions.google.com/sounds/v1/household/table_slide.ogg" preload="auto"></audio>
-<audio id="winSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
-<canvas id="confettiCanvas"></canvas>
+  <audio id="moveSound" src="https://cdn.pixabay.com/audio/2022/08/19/audio_bdfcd86536.mp3"></audio>
+  <audio id="winSound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_7334dfcf8a.mp3"></audio>
 
-<script>
-const COLORS=["#e74c3c","#2980b9","#27ae60","#f39c12","#8e44ad"];
-let N=5, mode='free', correctOrder=[],currentOrder=[],moves=0,timerInt=null, timeLeft=0;
+  <script>
+    const COLORS_BASE = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad", "#2ecc71", "#e67e22", "#1abc9c", "#9b59b6", "#34495e"];
+    let correctOrder = [];
+    let currentOrder = [];
+    let dragged = null;
 
-const levelSel=document.getElementById('levelSel'),
-      modeSel=document.getElementById('modeSel'),
-      moveCount=document.getElementById('moveCount'),
-      timerEl=document.getElementById('timer'),
-      container=document.getElementById('container'),
-      finalOrder=document.getElementById('finalOrder'),
-      boxContainer=document.getElementById('boxContainer'),
-      resultEl=document.getElementById('result'),
-      resetBtn=document.getElementById('resetBtn'),
-      moveSound=document.getElementById('moveSound'),
-      winSound=document.getElementById('winSound'),
-      canvas=document.getElementById('confettiCanvas'),
-      ctx=canvas.getContext('2d');
+    const container = document.getElementById("container");
+    const finalOrder = document.getElementById("finalOrder");
+    const result = document.getElementById("result");
+    const resetBtn = document.getElementById("resetBtn");
+    const boxContainer = document.getElementById("boxContainer");
+    const moveSound = document.getElementById("moveSound");
+    const winSound = document.getElementById("winSound");
+    const levelSelect = document.getElementById("levelSelect");
 
-function shuffle(a){return a.sort(()=>Math.random()-.5);}
-function shadeColor(c,p){let f=parseInt(c.slice(1),16),R=f>>16,G=f>>8&255,B=f&255;
-  return "#"+(0x1000000+((Math.round((0-R)*p/100)+R)<<16)+((Math.round((0-G)*p/100)+G)<<8)+(Math.round((0-B)*p/100)+B)).toString(16).slice(1);
-}
-function applyColor(el,c){el.style.background=`linear-gradient(145deg,${shadeColor(c,40)},${c})`;el.dataset.color=c;}
-function updateBest(){
-  const k=`best_${N}_${mode}`;
-  const prev=JSON.parse(localStorage.getItem(k)||'{}');
-  const cur={moves,time:mode==='timer'? (mode==='timer'? timeStart-timeLeft :0 ) :0};
-  if(!prev.moves||cur.moves<prev.moves){localStorage.setItem(k,JSON.stringify(cur));alert(`🎉 Nuevo récord nivel ${N}, modo ${mode}!`);}
-}
-function startTimer(){
-  timeLeft=N===3?60:N===5?90:120;
-  timerEl.textContent=`Tiempo: ${timeLeft}s`;
-  timerInt=setInterval(()=>{
-    if(--timeLeft<=0){clearInterval(timerInt);endGame(false);} else timerEl.textContent=`Tiempo: ${timeLeft}s`;
-  },1000);
-}
+    function shuffle(array) {
+      return array.map(a => [Math.random(), a])
+        .sort((a, b) => a[0] - b[0])
+        .map(a => a[1]);
+    }
 
-function create(){
-  clearInterval(timerInt);
-  N=parseInt(levelSel.value);
-  mode=modeSel.value;
-  correctOrder=shuffle([...COLORS]).slice(0,N);
-  currentOrder=shuffle([...correctOrder]);
-  moves=0;
-  moveCount.textContent=`Movimientos: ${moves}`;
-  timerEl.textContent=mode==='timer'?`Tiempo: ${(timeLeft=N===3?60:N===5?90:120)}s`:'';
-  resultEl.textContent='';
-  finalOrder.innerHTML='';
-  finalOrder.style.opacity=0;
-  resetBtn.classList.remove('show');
-  boxContainer.style.opacity=1;
-  container.style.transform='translateY(0)';
-  container.innerHTML='';
-  currentOrder.forEach(c=>{const d=document.createElement('div');d.className='bottle';applyColor(d,c);
-    d.draggable=true;['dragstart','dragover','drop','dragend'].forEach(e=>d.addEventListener(e,window[e]));container.appendChild(d);});
-  correctOrder.forEach(c=>{const d=document.createElement('div');d.className='bottle';applyColor(d,c);finalOrder.appendChild(d);});
-  if(mode==='timer') startTimer();
-}
+    function shadeColor(color, percent) {
+      let f = parseInt(color.slice(1), 16);
+      let R = f >> 16;
+      let G = (f >> 8) & 0x00FF;
+      let B = f & 0x0000FF;
+      return "#" + (0x1000000 +
+        (Math.round((255 - R) * percent / 100) + R) * 0x10000 +
+        (Math.round((255 - G) * percent / 100) + G) * 0x100 +
+        (Math.round((255 - B) * percent / 100) + B)).toString(16).slice(1);
+    }
 
-let dragged=null;
-function dragstart(e){dragged=e.target;dragged.classList.add('dancing');setTimeout(()=>dragged.style.opacity='0.6',0);}
-function dragover(e){e.preventDefault();}
-function drop(e){
-  e.preventDefault();
-  const tgt=e.target.closest('.bottle');
-  if(!tgt||tgt===dragged)return;
-  const c1=dragged.dataset.color,c2=tgt.dataset.color;
-  applyColor(dragged,c2);applyColor(tgt,c1);
-  moveSound.volume=0.3;moveSound.currentTime=0;moveSound.play();
-  updateOrder();
-}
-function dragend(){if(dragged){dragged.classList.remove('dancing');dragged.style.opacity='1';dragged=null;check();}}
-function updateOrder(){currentOrder=[...container.children].map(d=>d.dataset.color);}
-function animateShuffle(){
-  return new Promise(r=>{
-    [...container.children].forEach((b,i)=>{
-      b.classList.add('shuffling');
-      setTimeout(()=>{b.classList.remove('shuffling');if(i==container.children.length-1)r();},800);
+    function applyColor(el, color) {
+      el.style.background = `linear-gradient(145deg, ${shadeColor(color, 40)}, ${color})`;
+      el.dataset.color = color;
+    }
+
+    function createBottles(level = 5) {
+      const colors = COLORS_BASE.slice(0, level);
+      correctOrder = [...colors];
+      currentOrder = shuffle([...colors]);
+
+      container.innerHTML = "";
+      finalOrder.innerHTML = "";
+      finalOrder.style.opacity = 0;
+      result.textContent = "";
+      resetBtn.classList.remove("show");
+
+      currentOrder.forEach(color => {
+        const bottle = document.createElement("div");
+        bottle.classList.add("bottle");
+        bottle.setAttribute("draggable", true);
+        applyColor(bottle, color);
+        addDragEvents(bottle);
+        container.appendChild(bottle);
+      });
+
+      correctOrder.forEach(color => {
+        const bottle = document.createElement("div");
+        bottle.classList.add("bottle");
+        applyColor(bottle, color);
+        finalOrder.appendChild(bottle);
+      });
+    }
+
+    function addDragEvents(bottle) {
+      bottle.addEventListener("dragstart", (e) => {
+        dragged = e.target;
+        e.dataTransfer.setData("text/plain", "");
+        dragged.classList.add("dragging");
+      });
+
+      bottle.addEventListener("dragover", (e) => e.preventDefault());
+
+      bottle.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const target = e.target.closest('.bottle');
+        if (!target || target === dragged) return;
+
+        const draggedColor = dragged.dataset.color;
+        const targetColor = target.dataset.color;
+        applyColor(dragged, targetColor);
+        applyColor(target, draggedColor);
+
+        updateCurrentOrder();
+        moveSound.volume = 0.3;
+        moveSound.play();
+      });
+
+      bottle.addEventListener("dragend", () => {
+        dragged.classList.remove("dragging");
+        dragged = null;
+        checkOrder();
+      });
+    }
+
+    function updateCurrentOrder() {
+      currentOrder = Array.from(container.children).map(div => div.dataset.color);
+    }
+
+    function checkOrder() {
+      let correctCount = 0;
+      for (let i = 0; i < correctOrder.length; i++) {
+        if (currentOrder[i] === correctOrder[i]) correctCount++;
+      }
+      result.textContent = `Botellas correctas: ${correctCount} de ${correctOrder.length}`;
+      if (correctCount === correctOrder.length) {
+        result.textContent += " 🎉 ¡Ganaste!";
+        launchConfetti();
+        showFinalOrder();
+        winSound.play();
+        resetBtn.classList.add("show");
+      }
+    }
+
+    function showFinalOrder() {
+      finalOrder.style.opacity = 1;
+      boxContainer.style.opacity = 0.2;
+    }
+
+    function launchConfetti() {
+      const canvas = document.getElementById("confettiCanvas");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      let pieces = Array.from({length: 100}, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * -canvas.height,
+        speed: Math.random() * 3 + 2,
+        radius: Math.random() * 6 + 4,
+        color: COLORS_BASE[Math.floor(Math.random() * COLORS_BASE.length)]
+      }));
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let p of pieces) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+          p.y += p.speed;
+          if (p.y > canvas.height) p.y = -20;
+        }
+        requestAnimationFrame(draw);
+      }
+
+      draw();
+
+      setTimeout(() => {
+        canvas.width = 0;
+        canvas.height = 0;
+      }, 5000);
+    }
+
+    resetBtn.addEventListener("click", () => {
+      boxContainer.style.opacity = 1;
+      const level = parseInt(levelSelect.value);
+      createBottles(level);
     });
-  });
-}
 
-function check(){
-  moves++;
-  moveCount.textContent=`Movimientos: ${moves}`;
-  const corr=currentOrder.filter((c,i)=>c===correctOrder[i]).length;
-  resultEl.textContent=`Botellas correctas: ${corr} de ${N}`;
-  resultEl.style.color=corr===N?'green':corr>=N*0.6?'orange':'red';
-  if(corr===N){
-    endGame(true);
-  }
-}
+    levelSelect.addEventListener("change", () => {
+      const level = parseInt(levelSelect.value);
+      createBottles(level);
+    });
 
-function endGame(success){
-  clearInterval(timerInt);
-  if(success){
-    resultEl.textContent+=' ✅ ¡Ganaste!';
-    boxContainer.style.opacity=0.2;
-    finalOrder.style.opacity=1;
-    canvas.width=innerWidth;canvas.height=innerHeight;
-    drawConfetti();
-    winSound.volume=0.4;winSound.play();
-    resetBtn.classList.add('show');
-    updateBest();
-  } else {
-    resultEl.textContent='⏱️ Se acabó el tiempo!';
-    boxContainer.style.opacity=0.2;
-    finalOrder.style.opacity=1;
-    resetBtn.classList.add('show');
-  }
-}
-
-function drawConfetti(){
-  const arr=Array.from({length:100},_=>({x:Math.random()*canvas.width,y:Math.random()*-canvas.height,s:Math.random()*3+2,r:Math.random()*6+4,c:COLORS[Math.floor(Math.random()*COLORS.length)]}));
-  const loop=()=>{ctx.clearRect(0,0,canvas.width,canvas.height);arr.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,2*Math.PI);ctx.fillStyle=p.c;ctx.fill();p.y+=p.s;if(p.y>canvas.height)p.y=-20;});requestAnimationFrame(loop);}
-  loop();setTimeout(()=>{canvas.style.opacity=0;setTimeout(()=>canvas.style.display='none',2000);},3000);
-}
-
-resetBtn.addEventListener('click',async()=>{
-  resetBtn.classList.remove('show');
-  resultEl.textContent='';
-  finalOrder.style.opacity=0;
-  boxContainer.style.opacity=1;
-  await animateShuffle();
-  create();
-});
-levelSel.addEventListener('change',create);
-modeSel.addEventListener('change',create);
-
-create();
-</script>
+    createBottles(parseInt(levelSelect.value));
+  </script>
 </body>
 </html>
