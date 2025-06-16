@@ -143,6 +143,24 @@
       animation: shuffleAnim 0.8s ease-in-out;
       cursor: wait;
     }
+    /* Estilo para el botón de mute */
+    #mute-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: #fff;
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 1rem;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: background 0.2s;
+      z-index: 30;
+    }
+    #mute-btn:hover {
+      background: #eee;
+    }
   </style>
 </head>
 <body>
@@ -160,12 +178,24 @@
   <audio id="winSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
   <!-- Música de fondo ambiental en bucle y volumen máximo -->
   <audio id="bgMusic" src="audio/relaxed-scene.mp3" loop autoplay></audio>
+  <!-- Botón de mute/desmute -->
+  <button id="mute-btn">🔊 Silenciar</button>
   <canvas id="confettiCanvas"></canvas>
 
   <script>
     // Volumen máximo para la música de fondo
     const bgMusic = document.getElementById("bgMusic");
     bgMusic.volume = 1.0;
+
+    // Mute/desmute con botón
+    const muteBtn = document.getElementById('mute-btn');
+    bgMusic.muted = false;
+    muteBtn.textContent = '🔊 Silenciar';
+
+    muteBtn.addEventListener('click', () => {
+      bgMusic.muted = !bgMusic.muted;
+      muteBtn.textContent = bgMusic.muted ? "🔇 Activar sonido" : "🔊 Silenciar";
+    });
 
     // Requiere interacción si el navegador bloquea autoplay
     document.addEventListener('click', function playAudioOnce() {
