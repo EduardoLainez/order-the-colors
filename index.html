@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Juego de Botellas Mejorado</title>
   <style>
-    /* ... (todo tu CSS igual, sin cambios) ... */
     body {
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
@@ -15,7 +14,136 @@
       overflow-x: hidden;
       user-select: none;
     }
-    /* ... resto de tu CSS igual ... */
+    h1 {
+      margin: 20px 0;
+    }
+    #game {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    #boxContainer {
+      position: relative;
+      width: 380px;
+      height: 240px;
+      background: linear-gradient(145deg, #d6b887, #c1a663);
+      border: 3px solid #a17a38;
+      border-radius: 10px;
+      box-shadow: inset 0 6px 8px #b99957, 0 8px 12px rgba(0, 0, 0, 0.2);
+      overflow: visible;
+      transition: opacity 1s ease, visibility 1s ease;
+      margin-top: 150px;
+    }
+    #container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      position: absolute;
+      top: -140px;
+      left: 0;
+      width: 100%;
+      transition: transform 0.8s;
+      z-index: 10;
+    }
+    #finalOrder {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      position: absolute;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: fit-content;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 1s ease;
+      z-index: 9;
+    }
+    .bottle {
+      width: 60px;
+      height: 120px;
+      border-radius: 15px 15px 40px 40px;
+      border: 3px solid #333;
+      position: relative;
+      background: linear-gradient(145deg, #c4dcff, #4367d8);
+      box-shadow: inset 0 8px 15px rgba(255, 255, 255, 0.8), 0 8px 15px rgba(0, 0, 0, 0.3);
+      transition: transform 0.4s, opacity 0.4s;
+      cursor: grab;
+      user-select: none;
+    }
+    .bottle::before {
+      content: '';
+      position: absolute;
+      top: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 25px;
+      height: 20px;
+      background: linear-gradient(145deg, #a0b9f5, #334db2);
+      border-radius: 12px 12px 5px 5px;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6);
+      user-select: none;
+    }
+    .dancing {
+      animation: dance 0.5s infinite alternate;
+    }
+    @keyframes dance {
+      0% { transform: rotate(-3deg) translateY(-4px); }
+      100% { transform: rotate(3deg) translateY(4px); }
+    }
+    #result {
+      margin-top: 10px;
+      font-size: 1.3rem;
+      font-weight: bold;
+      min-height: 1.5em;
+      transition: color 0.5s;
+    }
+    #resetBtn {
+      margin-top: 10px;
+      padding: 12px 28px;
+      font-size: 1.2rem;
+      color: white;
+      background: linear-gradient(145deg, #2980b9, #1c5980);
+      border: none;
+      border-radius: 30px;
+      box-shadow: 0 4px 8px rgba(41, 128, 185, 0.7);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.7s;
+      user-select: none;
+    }
+    #resetBtn.show {
+      opacity: 1;
+      pointer-events: auto;
+      animation: pulse 1.5s infinite alternate;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 20;
+      pointer-events: none;
+      opacity: 1;
+      transition: opacity 2s;
+    }
+    @keyframes shuffleAnim {
+      0%   { transform: translateX(0) rotate(0deg); }
+      20%  { transform: translateX(-10px) rotate(-10deg); }
+      40%  { transform: translateX(10px) rotate(10deg); }
+      60%  { transform: translateX(-10px) rotate(-10deg); }
+      80%  { transform: translateX(10px) rotate(10deg); }
+      100% { transform: translateX(0) rotate(0deg); }
+    }
+    .shuffling {
+      animation: shuffleAnim 0.8s ease-in-out;
+      cursor: wait;
+    }
+    /* Estilo para el botón de mute */
     #mute-btn {
       position: fixed;
       top: 16px;
@@ -33,7 +161,21 @@
     #mute-btn:hover {
       background: #eee;
     }
-    /* ... etc ... */
+    /* Overlay para autoplay */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: #000b;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      font-size: 2rem;
+      font-family: inherit;
+      cursor: pointer;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
@@ -64,23 +206,14 @@
     const bgMusic = document.getElementById("bgMusic");
     bgMusic.volume = 1.0;
 
-    // Sonido de victoria
-    const winSound = document.getElementById("winSound");
-
-    // Mute/desmute con botón (afecta a TODOS los audios)
+    // Mute/desmute con botón
     const muteBtn = document.getElementById('mute-btn');
-    const audios = [bgMusic, winSound];
-    let isMuted = false;
-    // Estado inicial
-    audios.forEach(audio => audio.muted = false);
+    bgMusic.muted = false;
     muteBtn.textContent = '🔊 Silenciar';
 
     muteBtn.addEventListener('click', () => {
-      isMuted = !isMuted;
-      audios.forEach(audio => {
-        audio.muted = isMuted;
-      });
-      muteBtn.textContent = isMuted ? "🔇 Activar sonido" : "🔊 Silenciar";
+      bgMusic.muted = !bgMusic.muted;
+      muteBtn.textContent = bgMusic.muted ? "🔇 Activar sonido" : "🔊 Silenciar";
     });
 
     // Overlay para autoplay seguro
@@ -90,7 +223,7 @@
       overlay.style.display = 'none';
     });
 
-    // --- Lógica del juego (todo tu código igual) ---
+    // --- Lógica del juego (igual que antes) ---
     const COLORS = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad"];
     let correctOrder = [], currentOrder = [];
     const container = document.getElementById("container"),
@@ -99,8 +232,8 @@
       resetBtn = document.getElementById("resetBtn"),
       boxContainer = document.getElementById("boxContainer"),
       canvas = document.getElementById("confettiCanvas"),
-      ctx = canvas.getContext("2d");
-    // winSound ya definido arriba
+      ctx = canvas.getContext("2d"),
+      winSound = document.getElementById("winSound");
 
     function shuffle(arr) {
       return arr.sort(() => Math.random() - 0.5);
