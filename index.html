@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -131,6 +130,25 @@
         transform: scale(1.1);
       }
     }
+    #toggleMusic {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      font-size: 1.7rem;
+      padding: 10px 18px;
+      border-radius: 50%;
+      border: none;
+      background: #2980b9;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+      z-index: 200;
+      box-shadow: 0 4px 8px rgba(41, 128, 185, 0.3);
+      outline: none;
+    }
+    #toggleMusic:hover {
+      background: #1c5980;
+    }
     canvas {
       position: fixed;
       top: 0;
@@ -157,6 +175,7 @@
 </head>
 <body>
   <h1>Ordena las Botellas 🧪</h1>
+  <button id="toggleMusic" title="Activar/Desactivar música de fondo">🔊</button>
   <div id="game">
     <div id="boxContainer">
       <div id="container"></div>
@@ -169,13 +188,32 @@
   <!-- Sonido de victoria alegre -->
   <audio id="winSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
 
-  <!-- TODO: Música de fondo ambiental, reemplaza 'musica-fondo.mp3' por tu archivo si tiene otro nombre -->
-  <audio id="bgMusic" src="audio/relaxed-scene.mp3" loop autoplay></audio>
+  <!-- Música de fondo ambiental, usando un mp3 libre -->
+  <audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-sunny.mp3" loop autoplay></audio>
   <canvas id="confettiCanvas"></canvas>
 
   <script>
-    // TODO: Ajusta el volumen de la música de fondo para que sea ambiental
-    document.getElementById("bgMusic").volume = 0.2;
+    // Referencias a los elementos de audio y botón
+    const bgMusic = document.getElementById("bgMusic");
+    const toggleMusic = document.getElementById("toggleMusic");
+
+    // Volumen ambiental bajo
+    bgMusic.volume = 0.2;
+    // Estado de muteo
+    let muted = false;
+
+    // Control del botón para mutear/desmutear
+    toggleMusic.addEventListener("click", () => {
+      muted = !muted;
+      bgMusic.muted = muted;
+      toggleMusic.textContent = muted ? "🔇" : "🔊";
+    });
+
+    // Opcional: reproducir la música solo después de interacción del usuario (requerimiento de algunos navegadores)
+    document.body.addEventListener("click", function playMusicOnce() {
+      bgMusic.play();
+      document.body.removeEventListener("click", playMusicOnce);
+    });
 
     const COLORS = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad"];
     let correctOrder = [], currentOrder = [];
