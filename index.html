@@ -161,6 +161,21 @@
     #mute-btn:hover {
       background: #eee;
     }
+    /* Overlay para autoplay */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      background: #000b;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      font-size: 2rem;
+      font-family: inherit;
+      cursor: pointer;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
@@ -181,6 +196,10 @@
   <!-- Botón de mute/desmute -->
   <button id="mute-btn">🔊 Silenciar</button>
   <canvas id="confettiCanvas"></canvas>
+  <!-- Overlay para desbloquear el audio -->
+  <div id="overlay">
+    Haz clic para empezar la música 🎵
+  </div>
 
   <script>
     // Volumen máximo para la música de fondo
@@ -197,13 +216,14 @@
       muteBtn.textContent = bgMusic.muted ? "🔇 Activar sonido" : "🔊 Silenciar";
     });
 
-    // Requiere interacción si el navegador bloquea autoplay
-    document.addEventListener('click', function playAudioOnce() {
+    // Overlay para autoplay seguro
+    const overlay = document.getElementById('overlay');
+    overlay.addEventListener('click', () => {
       bgMusic.play();
-      document.removeEventListener('click', playAudioOnce);
+      overlay.style.display = 'none';
     });
 
-    // --- Lógica del juego (idéntica al original, sin controles de audio) ---
+    // --- Lógica del juego (igual que antes) ---
     const COLORS = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad"];
     let correctOrder = [], currentOrder = [];
     const container = document.getElementById("container"),
