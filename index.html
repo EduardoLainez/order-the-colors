@@ -209,6 +209,11 @@
       div.classList.add("bottle");
       div.setAttribute("data-index", index);
       div.draggable = true;
+
+      // Asignar color único según índice
+      const hue = (index * 360 / 20) % 360;
+      div.style.background = `hsl(${hue}, 70%, 60%)`;
+
       return div;
     }
 
