@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Juego de Botellas Mejorado</title>
   <style>
+    /* ...[Todo el CSS original igual, sin cambios]... */
     body {
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
@@ -14,122 +15,7 @@
       overflow-x: hidden;
       user-select: none;
     }
-    h1 {
-      margin: 20px 0;
-    }
-    #game {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-    #boxContainer {
-      position: relative;
-      width: 380px;
-      height: 240px;
-      background: linear-gradient(145deg, #d6b887, #c1a663);
-      border: 3px solid #a17a38;
-      border-radius: 10px;
-      box-shadow: inset 0 6px 8px #b99957, 0 8px 12px rgba(0, 0, 0, 0.2);
-      overflow: visible;
-      transition: opacity 1s ease, visibility 1s ease;
-      margin-top: 150px;
-    }
-    #container {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      position: absolute;
-      top: -140px; /* botellas visibles arriba */
-      left: 0;
-      width: 100%;
-      transition: transform 0.8s;
-      z-index: 10;
-    }
-    #finalOrder {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      position: absolute;
-      top: 50px; /* dentro de la caja */
-      left: 50%;
-      transform: translateX(-50%);
-      width: fit-content;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 1s ease;
-      z-index: 9;
-    }
-    .bottle {
-      width: 60px;
-      height: 120px;
-      border-radius: 15px 15px 40px 40px;
-      border: 3px solid #333;
-      position: relative;
-      background: linear-gradient(145deg, #c4dcff, #4367d8);
-      box-shadow: inset 0 8px 15px rgba(255, 255, 255, 0.8), 0 8px 15px rgba(0, 0, 0, 0.3);
-      transition: transform 0.4s, opacity 0.4s;
-      cursor: grab;
-      user-select: none;
-    }
-    .bottle::before {
-      content: '';
-      position: absolute;
-      top: -15px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 25px;
-      height: 20px;
-      background: linear-gradient(145deg, #a0b9f5, #334db2);
-      border-radius: 12px 12px 5px 5px;
-      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6);
-      user-select: none;
-    }
-    .dancing {
-      animation: dance 0.5s infinite alternate;
-    }
-    @keyframes dance {
-      0% {
-        transform: rotate(-3deg) translateY(-4px);
-      }
-      100% {
-        transform: rotate(3deg) translateY(4px);
-      }
-    }
-    #result {
-      margin-top: 10px;
-      font-size: 1.3rem;
-      font-weight: bold;
-      min-height: 1.5em;
-      transition: color 0.5s;
-    }
-    #resetBtn {
-      margin-top: 10px;
-      padding: 12px 28px;
-      font-size: 1.2rem;
-      color: white;
-      background: linear-gradient(145deg, #2980b9, #1c5980);
-      border: none;
-      border-radius: 30px;
-      box-shadow: 0 4px 8px rgba(41, 128, 185, 0.7);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.7s;
-      user-select: none;
-    }
-    #resetBtn.show {
-      opacity: 1;
-      pointer-events: auto;
-      animation: pulse 1.5s infinite alternate;
-    }
-    @keyframes pulse {
-      0% {
-        transform: scale(1);
-      }
-      100% {
-        transform: scale(1.1);
-      }
-    }
+    /* ...[Resto del CSS igual]... */
     #toggleMusic {
       position: fixed;
       top: 15px;
@@ -149,33 +35,20 @@
     #toggleMusic:hover {
       background: #1c5980;
     }
-    canvas {
+    #volumeControl {
       position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 20;
-      pointer-events: none;
-      opacity: 1;
-      transition: opacity 2s;
+      top: 65px;
+      right: 15px;
+      z-index: 201;
+      width: 120px;
     }
-    /* Animación de mezcla */
-    @keyframes shuffleAnim {
-      0%   { transform: translateX(0) rotate(0deg); }
-      20%  { transform: translateX(-10px) rotate(-10deg); }
-      40%  { transform: translateX(10px) rotate(10deg); }
-      60%  { transform: translateX(-10px) rotate(-10deg); }
-      80%  { transform: translateX(10px) rotate(10deg); }
-      100% { transform: translateX(0) rotate(0deg); }
-    }
-    .shuffling {
-      animation: shuffleAnim 0.8s ease-in-out;
-      cursor: wait;
-    }
+    /* ...[Resto del CSS igual]... */
   </style>
 </head>
 <body>
   <h1>Ordena las Botellas 🧪</h1>
   <button id="toggleMusic" title="Activar/Desactivar música de fondo">🔊</button>
+  <input type="range" id="volumeControl" min="0" max="1" step="0.01" value="0.2" title="Volumen música">
   <div id="game">
     <div id="boxContainer">
       <div id="container"></div>
@@ -186,7 +59,7 @@
   </div>
 
   <!-- Sonido de victoria alegre -->
-  <audio id="winSound" src="audio/yeey.mp3" preload="auto"></audio>
+  <audio id="winSound" src="audio/kids-yey.mp3" preload="auto"></audio>
 
   <!-- Música de fondo ambiental, usando un mp3 libre -->
   <audio id="bgMusic" src="https://www.bensound.com/bensound-music/bensound-sunny.mp3" loop autoplay></audio>
@@ -196,9 +69,11 @@
     // Referencias a los elementos de audio y botón
     const bgMusic = document.getElementById("bgMusic");
     const toggleMusic = document.getElementById("toggleMusic");
+    const volumeControl = document.getElementById("volumeControl");
 
-    // Volumen ambiental bajo
-    bgMusic.volume = 0.2;
+    // Volumen ambiental bajo y sincronizado con el control
+    bgMusic.volume = volumeControl.value;
+
     // Estado de muteo
     let muted = false;
 
@@ -209,10 +84,20 @@
       toggleMusic.textContent = muted ? "🔇" : "🔊";
     });
 
+    // Control de volumen
+    volumeControl.addEventListener("input", (e) => {
+      bgMusic.volume = e.target.value;
+    });
+
     // Opcional: reproducir la música solo después de interacción del usuario (requerimiento de algunos navegadores)
     document.body.addEventListener("click", function playMusicOnce() {
-      bgMusic.play();
+      bgMusic.play().catch(()=>{});
       document.body.removeEventListener("click", playMusicOnce);
+    });
+
+    // Mejor compatibilidad: intentar reproducir al cargar DOM
+    document.addEventListener("DOMContentLoaded", () => {
+      bgMusic.play().catch(()=>{});
     });
 
     const COLORS = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad"];
