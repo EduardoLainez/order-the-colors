@@ -206,14 +206,24 @@
     const bgMusic = document.getElementById("bgMusic");
     bgMusic.volume = 1.0;
 
-    // Mute/desmute con botón
+    // --- Mute/desmute para TODOS los audios y videos ---
     const muteBtn = document.getElementById('mute-btn');
-    bgMusic.muted = false;
+    let muted = false;
+
+    function setMuteAll(val) {
+      document.querySelectorAll('audio, video').forEach(el => {
+        el.muted = val;
+      });
+    }
+
+    // Estado inicial: no muteado
+    setMuteAll(false);
     muteBtn.textContent = '🔊 Silenciar';
 
     muteBtn.addEventListener('click', () => {
-      bgMusic.muted = !bgMusic.muted;
-      muteBtn.textContent = bgMusic.muted ? "🔇 Activar sonido" : "🔊 Silenciar";
+      muted = !muted;
+      setMuteAll(muted);
+      muteBtn.textContent = muted ? "🔇 Activar sonido" : "🔊 Silenciar";
     });
 
     // Overlay para autoplay seguro
