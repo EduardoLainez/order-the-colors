@@ -40,7 +40,7 @@
       justify-content: center;
       gap: 20px;
       position: absolute;
-      top: -140px; /* botellas visibles arriba */
+      top: -140px;
       left: 0;
       width: 100%;
       transition: transform 0.8s;
@@ -51,7 +51,7 @@
       justify-content: center;
       gap: 20px;
       position: absolute;
-      top: 50px; /* dentro de la caja */
+      top: 50px;
       left: 50%;
       transform: translateX(-50%);
       width: fit-content;
@@ -89,12 +89,8 @@
       animation: dance 0.5s infinite alternate;
     }
     @keyframes dance {
-      0% {
-        transform: rotate(-3deg) translateY(-4px);
-      }
-      100% {
-        transform: rotate(3deg) translateY(4px);
-      }
+      0% { transform: rotate(-3deg) translateY(-4px); }
+      100% { transform: rotate(3deg) translateY(4px); }
     }
     #result {
       margin-top: 10px;
@@ -123,12 +119,8 @@
       animation: pulse 1.5s infinite alternate;
     }
     @keyframes pulse {
-      0% {
-        transform: scale(1);
-      }
-      100% {
-        transform: scale(1.1);
-      }
+      0% { transform: scale(1); }
+      100% { transform: scale(1.1); }
     }
     canvas {
       position: fixed;
@@ -139,7 +131,6 @@
       opacity: 1;
       transition: opacity 2s;
     }
-    /* Animación de mezcla */
     @keyframes shuffleAnim {
       0%   { transform: translateX(0) rotate(0deg); }
       20%  { transform: translateX(-10px) rotate(-10deg); }
@@ -163,24 +154,26 @@
     </div>
     <p id="result"></p>
     <button id="resetBtn">Volver a jugar</button>
-    <!-- Controles de sonido -->
-    <div id="audioControls" style="margin-top:20px;">
-      <button id="muteBtn">🔊 Mute</button>
-      <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="0.2" style="width:120px;vertical-align:middle;">
-    </div>
   </div>
 
   <!-- Sonido de victoria alegre -->
   <audio id="winSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
-
-  <!-- Música de fondo ambiental -->
+  <!-- Música de fondo ambiental en bucle y volumen máximo -->
   <audio id="bgMusic" src="audio/relaxed-scene.mp3" loop autoplay></audio>
   <canvas id="confettiCanvas"></canvas>
 
   <script>
-    // Ajusta el volumen de la música de fondo para que sea ambiental
-    document.getElementById("bgMusic").volume = 0.2;
+    // Volumen máximo para la música de fondo
+    const bgMusic = document.getElementById("bgMusic");
+    bgMusic.volume = 1.0;
 
+    // Requiere interacción si el navegador bloquea autoplay
+    document.addEventListener('click', function playAudioOnce() {
+      bgMusic.play();
+      document.removeEventListener('click', playAudioOnce);
+    });
+
+    // --- Lógica del juego (idéntica al original, sin controles de audio) ---
     const COLORS = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad"];
     let correctOrder = [], currentOrder = [];
     const container = document.getElementById("container"),
@@ -289,10 +282,10 @@
       resultEl.style.color = corr === 5 ? "green" : corr >= 3 ? "orange" : "red";
       if (corr === 5) {
         resultEl.textContent += " ✅ ¡Ganaste!";
-        // Ocultar caja sutilmente y mostrar orden correcto dentro
+        // Ocultar caja y mostrar orden correcto
         boxContainer.style.opacity = 0.2;
         finalOrder.style.opacity = 1;
-        finalOrder.style.pointerEvents = "none"; // no interaccion con botellas orden correcto
+        finalOrder.style.pointerEvents = "none";
         launchConfetti();
         winSound.play();
         resetBtn.classList.add("show");
@@ -330,13 +323,11 @@
       }, 3000);
     }
 
-    // Animación de mezcla con promesa para esperar que termine
     function animateShuffleBottles() {
       return new Promise((resolve) => {
         const bottles = [...container.children];
         bottles.forEach((bottle, i) => {
           bottle.classList.add("shuffling");
-          // Añadir un pequeño retraso para que parezca más natural
           setTimeout(() => {
             bottle.classList.remove("shuffling");
             if (i === bottles.length - 1) resolve();
@@ -350,36 +341,12 @@
       resultEl.textContent = "";
       finalOrder.style.opacity = 0;
       finalOrder.style.pointerEvents = "none";
-      // Mostrar caja plenamente
       boxContainer.style.opacity = "1";
-      // Animación mezcla visible
       await animateShuffleBottles();
-      // Reordenar las botellas visibles y las respuestas
       createBottles();
     });
 
     createBottles();
-
-    // --- Controles de audio ---
-    const bgMusic = document.getElementById("bgMusic");
-    const muteBtn = document.getElementById("muteBtn");
-    const volumeSlider = document.getElementById("volumeSlider");
-
-    // Mute/unmute
-    muteBtn.addEventListener("click", function() {
-      bgMusic.muted = !bgMusic.muted;
-      muteBtn.textContent = bgMusic.muted ? "🔇 Unmute" : "🔊 Mute";
-    });
-
-    // Volumen slider
-    volumeSlider.addEventListener("input", function() {
-      bgMusic.volume = parseFloat(volumeSlider.value);
-    });
-
-    // Sincroniza el slider si se cambia el volumen por otro lado
-    bgMusic.addEventListener("volumechange", function() {
-      volumeSlider.value = bgMusic.volume;
-    });
   </script>
 </body>
 </html>
