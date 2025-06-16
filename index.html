@@ -176,173 +176,178 @@
     <div id="finalOrder"></div>
     <button id="resetBtn">Volver a jugar</button>
     <canvas id="confettiCanvas"></canvas>
-  <script>
-    const container = document.getElementById("container");
-    const result = document.getElementById("result");
-    const resetBtn = document.getElementById("resetBtn");
-    const finalOrder = document.getElementById("finalOrder");
-    const confettiCanvas = document.getElementById("confettiCanvas");
-    const levelSelect = document.getElementById("levelSelect");
-    const modeSelect = document.getElementById("modeSelect");
-    const boxContainer = document.getElementById("boxContainer");
+<script>
+const container = document.getElementById("container");
+const result = document.getElementById("result");
+const resetBtn = document.getElementById("resetBtn");
+const finalOrder = document.getElementById("finalOrder");
+const confettiCanvas = document.getElementById("confettiCanvas");
+const levelSelect = document.getElementById("levelSelect");
+const modeSelect = document.getElementById("modeSelect");
+const boxContainer = document.getElementById("boxContainer");
 
-    const confettiCtx = confettiCanvas.getContext("2d");
-    confettiCanvas.width = window.innerWidth;
-    confettiCanvas.height = window.innerHeight;
+const confettiCtx = confettiCanvas.getContext("2d");
+confettiCanvas.width = window.innerWidth;
+confettiCanvas.height = window.innerHeight;
 
-    let bottles = [];
-    let correctOrder = [];
-    let mode = "normal";
-    let dragging = null;
+let bottles = [];
+let correctOrder = [];
+let mode = "normal";
+let dragging = null;
 
-    const victorySound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_a3f1914e86.mp3?filename=success-1-6297.mp3");
-    const moveSound = new Audio("https://cdn.pixabay.com/download/audio/2022/02/23/audio_f8a3c94bc0.mp3?filename=wood-slide-2-8952.mp3");
+// Sonidos
+const victorySound = new Audio("https://cdn.pixabay.com/download/audio/2022/03/15/audio_a3f1914e86.mp3?filename=success-1-6297.mp3");
+const moveSound = new Audio("https://cdn.pixabay.com/download/audio/2022/02/23/audio_f8a3c94bc0.mp3?filename=wood-slide-2-8952.mp3");
 
-    function shuffle(array) {
-      return array.map(a => [Math.random(), a])
-                  .sort((a, b) => a[0] - b[0])
-                  .map(a => a[1]);
-    }
+// Marcar audio listo
+victorySound.volume = 0.5;
+moveSound.volume = 0.4;
 
-    function createBottle(index) {
-      const div = document.createElement("div");
-      div.classList.add("bottle");
-      div.setAttribute("data-index", index);
-      div.draggable = true;
+function shuffle(array) {
+  return array.map(a => [Math.random(), a])
+              .sort((a, b) => a[0] - b[0])
+              .map(a => a[1]);
+}
 
-      // Asignar color único según índice
-      const hue = (index * 360 / 20) % 360;
-      div.style.background = `hsl(${hue}, 70%, 60%)`;
+function createBottle(index, total) {
+  const div = document.createElement("div");
+  div.classList.add("bottle");
+  div.setAttribute("data-index", index);
+  div.draggable = true;
 
-      return div;
-    }
+  // Color fijo y distintivo según posicion y total
+  const hue = Math.round((index * (360 / total)) % 360);
+  div.style.background = `hsl(${hue}, 80%, 60%)`;
 
-    function playMoveSound() {
-      moveSound.currentTime = 0;
-      moveSound.volume = 0.4;
-      moveSound.play();
-    }
+  return div;
+}
 
-    function renderBottles() {
-      container.innerHTML = "";
-      bottles.forEach(bottle => {
-        container.appendChild(bottle);
-      });
-    }
+function playMoveSound() {
+  moveSound.currentTime = 0;
+  moveSound.play();
+}
 
-    function checkWin() {
-      const current = [...container.children].map(el => +el.getAttribute("data-index"));
-      const expected = mode === "reverse" ? [...correctOrder].reverse() : correctOrder;
-      const correct = current.filter((val, idx) => val === expected[idx]).length;
-      result.textContent = `Botellas en posición correcta: ${correct}`;
+function renderBottles() {
+  container.innerHTML = "";
+  bottles.forEach(bottle => container.appendChild(bottle));
+}
 
-      if (correct === correctOrder.length) {
-        result.textContent = "¡Correcto! 🎉";
-        finalOrder.innerHTML = "";
-        correctOrder.forEach(i => {
-          const clone = createBottle(i);
-          clone.style.cursor = "default";
-          finalOrder.appendChild(clone);
-        });
+function checkWin() {
+  const current = Array.from(container.children).map(el => +el.dataset.index);
+  const expected = mode === "reverse" ? [...correctOrder].reverse() : correctOrder;
+  const correct = current.filter((val, idx) => val === expected[idx]).length;
+  result.textContent = `Botellas en posición correcta: ${correct} de ${correctOrder.length}`;
 
-        boxContainer.style.opacity = "0";
-        finalOrder.style.opacity = "1";
-        resetBtn.classList.add("show");
+  if (correct === correctOrder.length) {
+    result.textContent = "¡Correcto! 🎉";
+    finalOrder.innerHTML = "";
 
-        victorySound.volume = 0.5;
-        victorySound.currentTime = 0;
-        victorySound.play();
-        triggerConfetti();
-      }
-    }
-
-    function triggerConfetti() {
-      let particles = [];
-      for (let i = 0; i < 100; i++) {
-        particles.push({
-          x: Math.random() * confettiCanvas.width,
-          y: Math.random() * confettiCanvas.height - confettiCanvas.height,
-          r: Math.random() * 6 + 4,
-          d: Math.random() * 20 + 10,
-          color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-          tilt: Math.random() * 10 - 5
-        });
-      }
-
-      let angle = 0;
-      function draw() {
-        confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-        angle += 0.01;
-        particles.forEach(p => {
-          p.y += Math.cos(angle + p.d) + 1 + p.r / 2;
-          p.x += Math.sin(angle) * 2;
-          confettiCtx.beginPath();
-          confettiCtx.fillStyle = p.color;
-          confettiCtx.ellipse(p.x, p.y, p.r, p.r / 2, Math.PI / 4, 0, 2 * Math.PI);
-          confettiCtx.fill();
-        });
-        particles = particles.filter(p => p.y < confettiCanvas.height);
-        if (particles.length > 0) requestAnimationFrame(draw);
-      }
-      draw();
-    }
-
-    function setupGame() {
-      finalOrder.style.opacity = "0";
-      resetBtn.classList.remove("show");
-      boxContainer.style.opacity = "1";
-      result.textContent = "";
-      mode = modeSelect.value;
-
-      const level = parseInt(levelSelect.value);
-      bottles = Array.from({ length: level }, (_, i) => createBottle(i));
-      correctOrder = bottles.map(b => +b.getAttribute("data-index"));
-
-      bottles = shuffle(bottles);
-      bottles.forEach(b => b.classList.add("dancing"));
-
-      setTimeout(() => {
-        bottles.forEach(b => b.classList.remove("dancing"));
-      }, 1500);
-
-      renderBottles();
-    }
-
-    function handleDragEvents() {
-      container.addEventListener("dragstart", e => {
-        if (e.target.classList.contains("bottle")) {
-          dragging = e.target;
-        }
-      });
-
-      container.addEventListener("dragover", e => {
-        e.preventDefault();
-        const afterElement = [...container.children].find(el => {
-          const rect = el.getBoundingClientRect();
-          return e.clientX < rect.left + rect.width / 2;
-        });
-        if (afterElement && dragging !== afterElement) {
-          container.insertBefore(dragging, afterElement);
-        } else {
-          container.appendChild(dragging);
-        }
-      });
-
-      container.addEventListener("drop", e => {
-        playMoveSound();
-        checkWin();
-      });
-    }
-
-    resetBtn.addEventListener("click", () => {
-      setupGame();
+    expected.forEach(i => {
+      const clone = createBottle(i, correctOrder.length);
+      clone.style.cursor = "default";
+      finalOrder.appendChild(clone);
     });
 
-    levelSelect.addEventListener("change", setupGame);
-    modeSelect.addEventListener("change", setupGame);
+    boxContainer.style.opacity = 0;
+    finalOrder.style.opacity = 1;
+    resetBtn.classList.add("show");
 
-    setupGame();
-    handleDragEvents();
-  </script>
+    victorySound.currentTime = 0;
+    victorySound.play();
+    triggerConfetti();
+  }
+}
+
+function triggerConfetti() {
+  let particles = [];
+  for (let i = 0; i < 100; i++) {
+    particles.push({
+      x: Math.random() * confettiCanvas.width,
+      y: Math.random() * -confettiCanvas.height,
+      r: Math.random() * 6 + 4,
+      d: Math.random() * 20 + 10,
+      color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+      tilt: Math.random() * 10 - 5
+    });
+  }
+
+  let angle = 0;
+  function draw() {
+    confettiCtx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+    angle += 0.01;
+    particles.forEach(p => {
+      p.y += Math.cos(angle + p.d) + 1 + p.r / 2;
+      p.x += Math.sin(angle) * 2;
+      confettiCtx.beginPath();
+      confettiCtx.fillStyle = p.color;
+      confettiCtx.ellipse(p.x, p.y, p.r, p.r / 2, Math.PI / 4, 0, 2 * Math.PI);
+      confettiCtx.fill();
+    });
+    particles = particles.filter(p => p.y < confettiCanvas.height);
+    if (particles.length) requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function setupGame() {
+  finalOrder.style.opacity = "0";
+  resetBtn.classList.remove("show");
+  boxContainer.style.opacity = "1";
+  result.textContent = "";
+  mode = modeSelect.value;
+
+  const total = parseInt(levelSelect.value);
+  bottles = [];
+  for (let i = 0; i < total; i++) {
+    bottles.push(createBottle(i, total));
+  }
+  correctOrder = bottles.map(b => +b.dataset.index);
+
+  bottles = shuffle(bottles);
+  bottles.forEach(b => b.classList.add("dancing"));
+
+  setTimeout(() => {
+    bottles.forEach(b => b.classList.remove("dancing"));
+    renderBottles();
+  }, 800);
+}
+
+function handleDragEvents() {
+  container.addEventListener("dragstart", e => {
+    if (e.target.classList.contains("bottle")) dragging = e.target;
+  });
+
+  container.addEventListener("dragover", e => {
+    e.preventDefault();
+    if (!dragging) return;
+
+    const after = [...container.children].find(el => {
+      const rect = el.getBoundingClientRect();
+      return e.clientX < rect.left + rect.width / 2;
+    });
+
+    if (after && dragging !== after) {
+      container.insertBefore(dragging, after);
+    } else {
+      container.appendChild(dragging);
+    }
+  });
+
+  container.addEventListener("drop", () => {
+    playMoveSound();
+    checkWin();
+  });
+
+  container.addEventListener("dragend", () => { dragging = null; });
+}
+
+resetBtn.addEventListener("click", setupGame);
+levelSelect.addEventListener("change", setupGame);
+modeSelect.addEventListener("change", setupGame);
+
+setupGame();
+handleDragEvents();
+
+</script>
 </body>
 </html>
