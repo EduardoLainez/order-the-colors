@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -139,7 +140,6 @@
       opacity: 1;
       transition: opacity 2s;
     }
-
     /* Animación de mezcla */
     @keyframes shuffleAnim {
       0%   { transform: translateX(0) rotate(0deg); }
@@ -168,9 +168,15 @@
 
   <!-- Sonido de victoria alegre -->
   <audio id="winSound" src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" preload="auto"></audio>
+
+  <!-- TODO: Música de fondo ambiental, reemplaza 'musica-fondo.mp3' por tu archivo si tiene otro nombre -->
+  <audio id="bgMusic" src="audio/relaxed-scene.mp3" loop autoplay></audio>
   <canvas id="confettiCanvas"></canvas>
 
   <script>
+    // TODO: Ajusta el volumen de la música de fondo para que sea ambiental
+    document.getElementById("bgMusic").volume = 0.2;
+
     const COLORS = ["#e74c3c", "#2980b9", "#27ae60", "#f39c12", "#8e44ad"];
     let correctOrder = [], currentOrder = [];
     const container = document.getElementById("container"),
@@ -340,13 +346,10 @@
       resultEl.textContent = "";
       finalOrder.style.opacity = 0;
       finalOrder.style.pointerEvents = "none";
-
       // Mostrar caja plenamente
       boxContainer.style.opacity = "1";
-
       // Animación mezcla visible
       await animateShuffleBottles();
-
       // Reordenar las botellas visibles y las respuestas
       createBottles();
     });
