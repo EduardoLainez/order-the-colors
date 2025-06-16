@@ -87,6 +87,8 @@
     }
     .dancing {
       animation: dance 0.5s infinite alternate;
+      outline: 4px solid #FFD600;
+      z-index: 100;
     }
     @keyframes dance {
       0% { transform: rotate(-3deg) translateY(-4px); }
@@ -302,6 +304,9 @@
         applyColor(d, c);
         finalOrder.appendChild(d);
       });
+
+      // Añadir soporte táctil cada vez que se crean botellas
+      addTouchListeners();
     }
 
     let dragged = null;
@@ -406,7 +411,57 @@
       createBottles();
     });
 
+    // --- SOPORTE TOUCH PARA MÓVIL/TABLET ---
+    let selectedBottle = null;
+    function isTouchDevice() {
+      return (
+        'ontouchstart' in window ||
+        navigator.maxTouchPoints > 0 ||
+        navigator.msMaxTouchPoints > 0
+      );
+    }
+    function handleTouch(e) {
+      // Evita conflicto con drag & drop en escritorio
+      if (!isTouchDevice()) return;
+      const bottle = e.target.closest(".bottle");
+      if (!bottle) return;
+      // Si no hay una seleccionada, selecciona esta
+      if (!selectedBottle) {
+        selectedBottle = bottle;
+        selectedBottle.classList.add("dancing");
+      } else if (bottle !== selectedBottle) {
+        // Intercambiar colores
+        const c1 = selectedBottle.dataset.color;
+        const c2 = bottle.dataset.color;
+        applyColor(selectedBottle, c2);
+        applyColor(bottle, c1);
+        selectedBottle.classList.remove("dancing");
+        selectedBottle = null;
+        updateOrder();
+        checkOrder();
+      } else {
+        // Si toca la misma, deselecciona
+        selectedBottle.classList.remove("dancing");
+        selectedBottle = null;
+      }
+    }
+    function addTouchListeners() {
+      if (isTouchDevice()) {
+        container.querySelectorAll(".bottle").forEach(b => {
+          b.addEventListener("touchstart", handleTouch);
+          b.addEventListener("click", handleTouch); // Para tablets y algunos móviles
+        });
+      }
+    }
+
+    // Inicialización
     createBottles();
+
+    // Drag & drop global para escritorio
+    window.dragstart = dragstart;
+    window.dragover = dragover;
+    window.drop = drop;
+    window.dragend = dragend;
   </script>
 </body>
 </html>
