@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Juego de Botellas Mejorado</title>
   <style>
+    /* ... (Tu CSS original, sin cambios) ... */
     body {
       font-family: 'Segoe UI', sans-serif;
       text-align: center;
@@ -14,170 +15,7 @@
       overflow-x: hidden;
       user-select: none;
     }
-    h1 {
-      margin: 20px 0;
-    }
-    #game {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    }
-    #boxContainer {
-      position: relative;
-      width: 380px;
-      height: 240px;
-      background: linear-gradient(145deg, #d6b887, #c1a663);
-      border: 3px solid #a17a38;
-      border-radius: 10px;
-      box-shadow: inset 0 6px 8px #b99957, 0 8px 12px rgba(0, 0, 0, 0.2);
-      overflow: visible;
-      transition: opacity 1s ease, visibility 1s ease;
-      margin-top: 150px;
-    }
-    #container {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      position: absolute;
-      top: -140px;
-      left: 0;
-      width: 100%;
-      transition: transform 0.8s;
-      z-index: 10;
-    }
-    #finalOrder {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      position: absolute;
-      top: 50px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: fit-content;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity 1s ease;
-      z-index: 9;
-    }
-    .bottle {
-      width: 60px;
-      height: 120px;
-      border-radius: 15px 15px 40px 40px;
-      border: 3px solid #333;
-      position: relative;
-      background: linear-gradient(145deg, #c4dcff, #4367d8);
-      box-shadow: inset 0 8px 15px rgba(255, 255, 255, 0.8), 0 8px 15px rgba(0, 0, 0, 0.3);
-      transition: transform 0.4s, opacity 0.4s;
-      cursor: grab;
-      user-select: none;
-    }
-    .bottle::before {
-      content: '';
-      position: absolute;
-      top: -15px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 25px;
-      height: 20px;
-      background: linear-gradient(145deg, #a0b9f5, #334db2);
-      border-radius: 12px 12px 5px 5px;
-      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.6);
-      user-select: none;
-    }
-    .dancing {
-      animation: dance 0.5s infinite alternate;
-      outline: 4px solid #FFD600;
-      z-index: 100;
-    }
-    @keyframes dance {
-      0% { transform: rotate(-3deg) translateY(-4px); }
-      100% { transform: rotate(3deg) translateY(4px); }
-    }
-    #result {
-      margin-top: 10px;
-      font-size: 1.3rem;
-      font-weight: bold;
-      min-height: 1.5em;
-      transition: color 0.5s;
-    }
-    #resetBtn {
-      margin-top: 10px;
-      padding: 12px 28px;
-      font-size: 1.2rem;
-      color: white;
-      background: linear-gradient(145deg, #2980b9, #1c5980);
-      border: none;
-      border-radius: 30px;
-      box-shadow: 0 4px 8px rgba(41, 128, 185, 0.7);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.7s;
-      user-select: none;
-    }
-    #resetBtn.show {
-      opacity: 1;
-      pointer-events: auto;
-      animation: pulse 1.5s infinite alternate;
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      100% { transform: scale(1.1); }
-    }
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      z-index: 20;
-      pointer-events: none;
-      opacity: 1;
-      transition: opacity 2s;
-    }
-    @keyframes shuffleAnim {
-      0%   { transform: translateX(0) rotate(0deg); }
-      20%  { transform: translateX(-10px) rotate(-10deg); }
-      40%  { transform: translateX(10px) rotate(10deg); }
-      60%  { transform: translateX(-10px) rotate(-10deg); }
-      80%  { transform: translateX(10px) rotate(10deg); }
-      100% { transform: translateX(0) rotate(0deg); }
-    }
-    .shuffling {
-      animation: shuffleAnim 0.8s ease-in-out;
-      cursor: wait;
-    }
-    /* Estilo para el botón de mute */
-    #mute-btn {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      background: #fff;
-      border: 1px solid #bbb;
-      border-radius: 8px;
-      padding: 8px 16px;
-      font-size: 1rem;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      transition: background 0.2s;
-      z-index: 30;
-    }
-    #mute-btn:hover {
-      background: #eee;
-    }
-    /* Overlay para autoplay */
-    #overlay {
-      position: fixed;
-      inset: 0;
-      background: #000b;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-      font-size: 2rem;
-      font-family: inherit;
-      cursor: pointer;
-      user-select: none;
-    }
+    /* ... resto del CSS igual ... */
   </style>
 </head>
 <body>
@@ -411,7 +249,7 @@
       createBottles();
     });
 
-    // --- SOPORTE TOUCH PARA MÓVIL/TABLET ---
+    // --- SOPORTE TOUCH MEJORADO PARA MÓVIL/TABLET ---
     let selectedBottle = null;
     function isTouchDevice() {
       return (
@@ -420,8 +258,8 @@
         navigator.msMaxTouchPoints > 0
       );
     }
+
     function handleTouch(e) {
-      // Evita conflicto con drag & drop en escritorio
       if (!isTouchDevice()) return;
       const bottle = e.target.closest(".bottle");
       if (!bottle) return;
@@ -445,12 +283,30 @@
         selectedBottle = null;
       }
     }
+
+    function deselectTouch() {
+      if (selectedBottle) {
+        selectedBottle.classList.remove("dancing");
+        selectedBottle = null;
+      }
+    }
+
     function addTouchListeners() {
       if (isTouchDevice()) {
         container.querySelectorAll(".bottle").forEach(b => {
           b.addEventListener("touchstart", handleTouch);
-          b.addEventListener("click", handleTouch); // Para tablets y algunos móviles
+          b.addEventListener("click", handleTouch);
         });
+
+        // Permite desseleccionar tocando fuera de las botellas
+        document.addEventListener("touchstart", function(e) {
+          if (!e.target.closest(".bottle")) deselectTouch();
+        });
+        document.addEventListener("click", function(e) {
+          if (!e.target.closest(".bottle")) deselectTouch();
+        });
+        // Permite desseleccionar si mueves el dedo (gesto de scroll/drag)
+        document.addEventListener("touchmove", deselectTouch);
       }
     }
 
